@@ -4,10 +4,22 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:local="clr-namespace:ShipDataViewer"
 	xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+	xmlns:s="https://github.com/canton7/Stylet"
 	Title="Ship Data Viewer"
 	Width="800"
 	Height="450">
-	<StackPanel>
-		<TextBlock Text="{Binding NameString}" />
-	</StackPanel>
+	<DockPanel>
+
+
+		<StatusBar DockPanel.Dock="Bottom">
+			<StatusBarItem>
+				<TextBlock Text="{Binding LoadingMessage}" />
+			</StatusBarItem>
+		</StatusBar>
+
+		<StackPanel>
+			<Button Command="{s:Action LoadShipDetails}" Content="Load ship details" />
+			<TextBlock Text="{Binding Details}" />
+		</StackPanel>
+	</DockPanel>
 </mah:MetroWindow>

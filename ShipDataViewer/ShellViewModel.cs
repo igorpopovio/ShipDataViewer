@@ -4,23 +4,27 @@ namespace ShipDataViewer;
 
 public class ShellViewModel : Screen
 {
+	private readonly string DefaultLoadingMessage = "Ready";
+
 	private readonly IWindowManager _windowManager;
 
-	public string NameString { get; set; }
+	public string Details { get; set; } = string.Empty;
+	public string LoadingMessage { get; set; }
 
 	public ShellViewModel(IWindowManager windowManager)
 	{
-		DisplayName = "Hello Dialog";
-		NameString = "Test string";
+		DisplayName = "Ship Data Viewer";
+		LoadingMessage = DefaultLoadingMessage;
 		_windowManager = windowManager;
 	}
 
-	public void ShowDialog()
+	public async Task LoadShipDetails()
 	{
-		//bool? result = this._windowManager.ShowDialog(dialogVm);
-		//if (result.GetValueOrDefault())
-		//	this.NameString = $"Your name is {dialogVm.Name}";
-		//else
-		//	this.NameString = "Dialog cancelled";
+		LoadingMessage = "Connecting to server...";
+		await Task.Delay(1000);
+		Details = "Data loaded";
+		LoadingMessage = "Data loaded successfully!";
+		await Task.Delay(2000);
+		LoadingMessage = DefaultLoadingMessage;
 	}
 }
