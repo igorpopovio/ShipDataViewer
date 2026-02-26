@@ -22,7 +22,7 @@ public class AisStreamService : IService
 
 		using var webSocket = new ClientWebSocket();
 		await webSocket.ConnectAsync(new Uri(UriString), token);
-		await webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(connectionDetailsJson)), WebSocketMessageType.Text, true, token);
+		await webSocket.SendAsync(new ArraySegment<byte>(Encoding.Default.GetBytes(connectionDetailsJson)), WebSocketMessageType.Text, true, token);
 		var buffer = new byte[4096];
 
 		while (webSocket.State == WebSocketState.Open)
