@@ -95,16 +95,10 @@ public class AisStreamService : IService
 
 			var responseJson = Encoding.Default.GetString(buffer, 0, result.Count);
 			var obj = JsonSerializer.Deserialize<AisStreamMessage>(responseJson, _jsonOptions);
-			var metadataJson = obj.MetaData.ToString(); //.Replace(" +0000 UTC", "");
+			var metadataJson = obj?.MetaData.ToString() ?? string.Empty;
 
-
-			var jsonOptions = new JsonSerializerOptions
-			{
-				PropertyNameCaseInsensitive = true
-			};
-
-			jsonOptions.Converters.Add(new GoTimeConverter());
-
+			var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+			jsonOptions.Converters.Add(new MetadataDateTimeConverter());
 			var metadata = JsonSerializer.Deserialize<MetadataDto>(metadataJson, jsonOptions);
 		}
 	}
