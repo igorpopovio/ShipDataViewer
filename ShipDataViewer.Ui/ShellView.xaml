@@ -6,6 +6,14 @@
 	xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
 	xmlns:s="https://github.com/canton7/Stylet"
 	Title="Ship Data Viewer">
+
+	<mah:MetroWindow.Resources>
+		<CollectionViewSource
+			x:Key="ShipsCollectionViewSource"
+			Filter="CollectionViewSource_Filter"
+			Source="{Binding Ships}" />
+	</mah:MetroWindow.Resources>
+
 	<DockPanel>
 		<StatusBar DockPanel.Dock="Bottom">
 			<StatusBarItem>
@@ -31,7 +39,7 @@
 				Grid.Row="2"
 				AutoGenerateColumns="True"
 				IsReadOnly="True"
-				ItemsSource="{Binding Ships}" />
+				ItemsSource="{Binding Source={StaticResource ShipsCollectionViewSource}}" />
 		</Grid>
 	</DockPanel>
 </mah:MetroWindow>

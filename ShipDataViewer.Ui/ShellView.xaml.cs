@@ -6,4 +6,9 @@ public partial class ShellView
 	{
 		InitializeComponent();
 	}
+
+	private void CollectionViewSource_Filter(object sender, System.Windows.Data.FilterEventArgs e)
+	{
+
+	}
 }
