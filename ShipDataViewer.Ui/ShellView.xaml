@@ -5,15 +5,8 @@
 	xmlns:local="clr-namespace:ShipDataViewer.Ui"
 	xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
 	xmlns:s="https://github.com/canton7/Stylet"
-	Title="Ship Data Viewer">
-
-	<mah:MetroWindow.Resources>
-		<CollectionViewSource
-			x:Key="ShipsCollectionViewSource"
-			Filter="CollectionViewSource_Filter"
-			Source="{Binding Ships}" />
-	</mah:MetroWindow.Resources>
-
+	Title="Ship Data Viewer"
+	Loaded="MetroWindow_Loaded">
 	<DockPanel>
 		<StatusBar DockPanel.Dock="Bottom">
 			<StatusBarItem>
@@ -23,6 +16,7 @@
 
 		<Grid>
 			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
 				<RowDefinition Height="Auto" />
 				<RowDefinition Height="Auto" />
 				<RowDefinition />
@@ -35,11 +29,16 @@
 				Grid.Row="1"
 				Command="{s:Action StopListening}"
 				Content="Stop listening" />
-			<DataGrid
+			<TextBox
 				Grid.Row="2"
+				Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}"
+				TextChanged="TextBox_TextChanged" />
+			<DataGrid
+				x:Name="ShipDataGrid"
+				Grid.Row="3"
 				AutoGenerateColumns="True"
 				IsReadOnly="True"
-				ItemsSource="{Binding Source={StaticResource ShipsCollectionViewSource}}" />
+				ItemsSource="{Binding Ships}" />
 		</Grid>
 	</DockPanel>
 </mah:MetroWindow>
