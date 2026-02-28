@@ -6,7 +6,7 @@
 	xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
 	xmlns:s="https://github.com/canton7/Stylet"
 	Title="Ship Data Viewer"
-	Loaded="MetroWindow_Loaded">
+	Loaded="Window_Loaded">
 	<DockPanel>
 		<StatusBar DockPanel.Dock="Bottom">
 			<StatusBarItem>

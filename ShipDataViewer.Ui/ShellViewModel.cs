@@ -4,7 +4,6 @@ using ShipDataViewer.Core.Service;
 using Stylet;
 
 using System.Collections.ObjectModel;
-using System.Windows.Data;
 
 namespace ShipDataViewer.Ui;
 
@@ -18,7 +17,6 @@ public class ShellViewModel : Screen
 	private readonly Func<ServiceConfiguration, IService> _serviceFactory;
 
 	public ObservableCollection<Ship> Ships { get; } = new ObservableCollection<Ship>();
-	public CollectionViewSource ShipCollectionViewSource = new CollectionViewSource();
 	public string FilterText { get; set; } = string.Empty;
 
 	public string LoadingMessage { get; set; }
@@ -29,8 +27,6 @@ public class ShellViewModel : Screen
 		LoadingMessage = DefaultLoadingMessage;
 		_windowManager = windowManager;
 		_serviceFactory = serviceFactory;
-		//ShipCollectionViewSource.Source = Ships;
-		//ShipCollectionViewSource = CollectionViewSource.GetDefaultView(Ships);
 	}
 
 	public async Task StartListening()
@@ -60,5 +56,15 @@ public class ShellViewModel : Screen
 	public async Task StopListening()
 	{
 		await cts.CancelAsync();
+	}
+
+	public bool Filter(object obj)
+	{
+		if (obj is not Ship ship)
+		{
+			return false;
+		}
+
+		return ship.Name.Contains(FilterText, StringComparison.OrdinalIgnoreCase);
 	}
 }
