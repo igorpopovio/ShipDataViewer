@@ -2,16 +2,14 @@
 
 using Stylet;
 
-using System.Reflection;
-
 namespace ShipDataViewer.Ui;
 
 public class AutofacBootstrapper<TRootViewModel> : BootstrapperBase where TRootViewModel : class
 {
-	private IContainer _container;
+	private IContainer? _container;
 
-	private TRootViewModel _rootViewModel;
-	protected virtual TRootViewModel RootViewModel => this._rootViewModel ??= (TRootViewModel)this.GetInstance(typeof(TRootViewModel));
+	private TRootViewModel? _rootViewModel;
+	protected virtual TRootViewModel? RootViewModel => _rootViewModel ??= GetInstance(typeof(TRootViewModel)) as TRootViewModel;
 
 	protected override void ConfigureBootstrapper()
 	{
@@ -21,15 +19,12 @@ public class AutofacBootstrapper<TRootViewModel> : BootstrapperBase where TRootV
 		_container = builder.Build();
 	}
 
-	/// <summary>
-	/// Carries out default configuration of the IoC container. Override if you don't want to do this
-	/// </summary>
 	protected virtual void DefaultConfigureIoC(ContainerBuilder builder)
 	{
 		var viewManagerConfig = new ViewManagerConfig()
 		{
 			ViewFactory = GetInstance,
-			ViewAssemblies = new List<Assembly>() { GetType().Assembly }
+			ViewAssemblies = [GetType().Assembly]
 		};
 		builder.RegisterInstance<IViewManager>(new ViewManager(viewManagerConfig));
 		builder.RegisterType<MessageBoxView>();
@@ -40,17 +35,14 @@ public class AutofacBootstrapper<TRootViewModel> : BootstrapperBase where TRootV
 		builder.RegisterType<MessageBoxViewModel>().As<IMessageBoxViewModel>().ExternallyOwned(); // Not singleton!
 
 		// See https://github.com/canton7/Stylet/discussions/211
-		builder.RegisterAssemblyTypes(this.GetType().Assembly).Where(x => !x.Name.Contains("ProcessedByFody")).ExternallyOwned();
+		builder.RegisterAssemblyTypes(GetType().Assembly).Where(x => !x.Name.Contains("ProcessedByFody")).ExternallyOwned();
 	}
 
-	/// <summary>
-	/// Override to add your own types to the IoC container.
-	/// </summary>
 	protected virtual void ConfigureIoC(ContainerBuilder builder) { }
 
-	public override object GetInstance(Type type)
+	public override object? GetInstance(Type type)
 	{
-		return _container.Resolve(type);
+		return _container?.Resolve(type);
 	}
 
 	protected override void Launch()
@@ -61,9 +53,7 @@ public class AutofacBootstrapper<TRootViewModel> : BootstrapperBase where TRootV
 	public override void Dispose()
 	{
 		ScreenExtensions.TryDispose(_rootViewModel);
-		if (_container != null)
-			_container.Dispose();
-
+		_container?.Dispose();
 		base.Dispose();
 	}
 }
