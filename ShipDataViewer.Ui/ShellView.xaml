@@ -12,6 +12,14 @@
 			<StatusBarItem>
 				<TextBlock Text="{Binding LoadingMessage}" />
 			</StatusBarItem>
+			<Separator />
+			<StatusBarItem>
+				<TextBlock Text="{Binding ShipsReportedMessage}" />
+			</StatusBarItem>
+			<Separator />
+			<StatusBarItem>
+				<TextBlock Text="{Binding LastUpdateMessage}" />
+			</StatusBarItem>
 		</StatusBar>
 
 		<Grid>

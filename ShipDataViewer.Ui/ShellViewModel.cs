@@ -19,6 +19,10 @@ public class ShellViewModel : Screen
 
 	public string LoadingMessage { get; set; }
 
+	public DateTime LastUpdateReceived { get; set; }
+	public string LastUpdateMessage => $"Last Update Received: {LastUpdateReceived:G}";
+	public string ShipsReportedMessage => $"Total Ships Reported: {Ships.Count}";
+
 	public ShellViewModel(Func<ServiceConfiguration, IService> serviceFactory)
 	{
 		DisplayName = "Ship Data Viewer";
@@ -36,7 +40,12 @@ public class ShellViewModel : Screen
 			BoundingBoxes = [[[-11, 178], [30, 74]]],
 		});
 
-		service.ShipDataReceived += (sender, ship) => { Ships.Add(ship); };
+		service.ShipDataReceived += (sender, ship) =>
+		{
+			Ships.Add(ship);
+			NotifyOfPropertyChange(() => ShipsReportedMessage);
+			LastUpdateReceived = DateTime.Now;
+		};
 
 		try
 		{
