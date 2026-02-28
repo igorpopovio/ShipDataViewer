@@ -16,37 +16,11 @@ public class AisStreamService : IService
 
 	private readonly ServiceConfiguration _serviceConfiguration;
 
-	private readonly JsonSerializerOptions _jsonSerializerOptions;
-
 	public event EventHandler<Ship>? ShipDataReceived;
 
 	public AisStreamService(ServiceConfiguration serviceConfiguration)
 	{
 		_serviceConfiguration = serviceConfiguration;
-		_jsonSerializerOptions = CreateJsonOptions();
-	}
-
-	private JsonSerializerOptions CreateJsonOptions()
-	{
-		var assembly = typeof(AisStreamMessage).Assembly;
-		var converterTypes = assembly
-			.GetTypes()
-			.Where(t =>
-				!t.IsAbstract &&
-				!t.IsInterface &&
-				typeof(JsonConverter).IsAssignableFrom(t))
-			.ToList();
-
-		var options = new JsonSerializerOptions();
-		foreach (var type in converterTypes)
-		{
-			if (Activator.CreateInstance(type) is JsonConverter converter)
-			{
-				options.Converters.Add(converter);
-			}
-		}
-
-		return options;
 	}
 
 	public async Task ListenAsync(CancellationToken token = default)
@@ -55,9 +29,11 @@ public class AisStreamService : IService
 		await webSocket.ConnectAsync(new Uri(UriString), token);
 
 		var serviceConfigurationJson = JsonSerializer.Serialize(_serviceConfiguration);
-		await webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(serviceConfigurationJson)), WebSocketMessageType.Text, true, token);
+		var serviceConfigurationBytes = Encoding.UTF8.GetBytes(serviceConfigurationJson);
+		await webSocket.SendAsync(new ArraySegment<byte>(serviceConfigurationBytes), WebSocketMessageType.Text, true, token);
 
 		var buffer = new byte[4096];
+		var jsonSerializerOptions = CreateJsonOptions();
 		while (webSocket.State == WebSocketState.Open)
 		{
 			var response = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
@@ -69,7 +45,7 @@ public class AisStreamService : IService
 			}
 
 			var responseJson = Encoding.UTF8.GetString(buffer, 0, response.Count);
-			var aisStreamMessage = JsonSerializer.Deserialize<AisStreamMessage>(responseJson, _jsonSerializerOptions);
+			var aisStreamMessage = JsonSerializer.Deserialize<AisStreamMessage>(responseJson, jsonSerializerOptions);
 
 			if (aisStreamMessage == null)
 			{
@@ -95,5 +71,28 @@ public class AisStreamService : IService
 				ShipDataReceived?.Invoke(this, ship);
 			}
 		}
+	}
+
+	private JsonSerializerOptions CreateJsonOptions()
+	{
+		var assembly = typeof(AisStreamMessage).Assembly;
+		var converterTypes = assembly
+			.GetTypes()
+			.Where(t =>
+				!t.IsAbstract &&
+				!t.IsInterface &&
+				typeof(JsonConverter).IsAssignableFrom(t))
+			.ToList();
+
+		var options = new JsonSerializerOptions();
+		foreach (var type in converterTypes)
+		{
+			if (Activator.CreateInstance(type) is JsonConverter converter)
+			{
+				options.Converters.Add(converter);
+			}
+		}
+
+		return options;
 	}
 }
