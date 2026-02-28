@@ -52,10 +52,10 @@
 					<DataGridTextColumn Binding="{Binding ImoNumber}" Header="Imo number" />
 					<DataGridTextColumn Binding="{Binding Name}" Header="Name" />
 					<DataGridTextColumn Binding="{Binding CallSign}" Header="Call sign" />
-					<DataGridTextColumn Binding="{Binding LastReportedPosition.Latitude}" Header="Latitude" />
-					<DataGridTextColumn Binding="{Binding LastReportedPosition.Longitude}" Header="Longitude" />
-					<DataGridTextColumn Binding="{Binding LastReportedPosition.Sog}" Header="Sog" />
-					<DataGridTextColumn Binding="{Binding LastReportedPosition.Cog}" Header="Cog" />
+					<DataGridTextColumn Binding="{Binding LastReportedPosition.Latitude, StringFormat={}{0:0.000}}" Header="Latitude" />
+					<DataGridTextColumn Binding="{Binding LastReportedPosition.Longitude, StringFormat={}{0:0.000}}" Header="Longitude" />
+					<DataGridTextColumn Binding="{Binding LastReportedPosition.Sog, StringFormat={}{0:0.000}}" Header="Sog" />
+					<DataGridTextColumn Binding="{Binding LastReportedPosition.Cog, StringFormat={}{0:0.000}}" Header="Cog" />
 					<DataGridTextColumn Binding="{Binding LastReportedPosition.TrueHeading}" Header="True heading" />
 					<DataGridTextColumn Binding="{Binding LastUpdated, StringFormat={}{0:G}}" Header="Last updated" />
 				</DataGrid.Columns>
