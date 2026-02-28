@@ -11,31 +11,30 @@ public class ShellViewModel : Screen
 {
 	private readonly string DefaultLoadingMessage = "Ready";
 
-	private CancellationTokenSource cts = new CancellationTokenSource();
+	private CancellationTokenSource cancellationTokenSource = new();
 
-	private readonly IWindowManager _windowManager;
 	private readonly Func<ServiceConfiguration, IService> _serviceFactory;
 
-	public ObservableCollection<Ship> Ships { get; } = new ObservableCollection<Ship>();
+	public ObservableCollection<Ship> Ships { get; } = [];
+
 	public string FilterText { get; set; } = string.Empty;
 
 	public string LoadingMessage { get; set; }
 
-	public ShellViewModel(IWindowManager windowManager, Func<ServiceConfiguration, IService> serviceFactory)
+	public ShellViewModel(Func<ServiceConfiguration, IService> serviceFactory)
 	{
 		DisplayName = "Ship Data Viewer";
 		LoadingMessage = DefaultLoadingMessage;
-		_windowManager = windowManager;
 		_serviceFactory = serviceFactory;
 	}
 
 	public async Task StartListening()
 	{
 		LoadingMessage = "Listening to AIS data...";
-		var apiKey = Environment.GetEnvironmentVariable("AIS_STREAM_API_KEY");
+		var apiKey = Environment.GetEnvironmentVariable("AIS_STREAM_API_KEY") ?? throw new ArgumentNullException("AIS_STREAM_API_KEY");
 		var service = _serviceFactory(new ServiceConfiguration
 		{
-			ApiKey = apiKey!,
+			ApiKey = apiKey,
 			BoundingBoxes = [[[-11, 178], [30, 74]]],
 		});
 
@@ -43,19 +42,19 @@ public class ShellViewModel : Screen
 
 		try
 		{
-			await service.ListenAsync(cts.Token);
+			await service.ListenAsync(cancellationTokenSource.Token);
 		}
 		catch (OperationCanceledException)
 		{
-			cts.Dispose();
-			cts = new CancellationTokenSource();
+			cancellationTokenSource.Dispose();
+			cancellationTokenSource = new CancellationTokenSource();
 			LoadingMessage = "Stopped listening to AIS data...";
 		}
 	}
 
 	public async Task StopListening()
 	{
-		await cts.CancelAsync();
+		await cancellationTokenSource.CancelAsync();
 	}
 
 	public bool Filter(object obj)
