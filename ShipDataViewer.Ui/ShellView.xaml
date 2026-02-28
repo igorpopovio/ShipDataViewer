@@ -5,9 +5,7 @@
 	xmlns:local="clr-namespace:ShipDataViewer.Ui"
 	xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
 	xmlns:s="https://github.com/canton7/Stylet"
-	Title="Ship Data Viewer"
-	Width="800"
-	Height="450">
+	Title="Ship Data Viewer">
 	<DockPanel>
 		<StatusBar DockPanel.Dock="Bottom">
 			<StatusBarItem>
@@ -15,10 +13,25 @@
 			</StatusBarItem>
 		</StatusBar>
 
-		<StackPanel>
-			<Button Command="{s:Action StartListening}" Content="Start listening" />
-			<Button Command="{s:Action StopListening}" Content="Stop listening" />
-			<DataGrid AutoGenerateColumns="True" ItemsSource="{Binding Ships}" />
-		</StackPanel>
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition />
+			</Grid.RowDefinitions>
+			<Button
+				Grid.Row="0"
+				Command="{s:Action StartListening}"
+				Content="Start listening" />
+			<Button
+				Grid.Row="1"
+				Command="{s:Action StopListening}"
+				Content="Stop listening" />
+			<DataGrid
+				Grid.Row="2"
+				AutoGenerateColumns="True"
+				IsReadOnly="True"
+				ItemsSource="{Binding Ships}" />
+		</Grid>
 	</DockPanel>
 </mah:MetroWindow>
