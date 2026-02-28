@@ -7,4 +7,6 @@ public interface IService
 	Task ListenAsync(CancellationToken token = default);
 
 	event EventHandler<Ship> ShipDataReceived;
+
+	event EventHandler<Position> PositionDataReceived;
 }

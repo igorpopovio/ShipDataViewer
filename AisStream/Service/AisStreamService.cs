@@ -18,6 +18,8 @@ public class AisStreamService : IService
 
 	public event EventHandler<Ship>? ShipDataReceived;
 
+	public event EventHandler<Position>? PositionDataReceived;
+
 	public AisStreamService(ServiceConfiguration serviceConfiguration) => _serviceConfiguration = serviceConfiguration;
 
 	public async Task ListenAsync(CancellationToken cancellationToken = default)
@@ -55,6 +57,7 @@ public class AisStreamService : IService
 					Process(aisStreamMessage.Message.ShipStaticData);
 					break;
 				case AisMessageTypes.PositionReport:
+					Process(aisStreamMessage.Message.PositionReport);
 					break;
 				case AisMessageTypes.StaticDataReport:
 					break;
@@ -62,6 +65,26 @@ public class AisStreamService : IService
 					break;
 			}
 		}
+	}
+
+	private void Process(PositionReport? positionReport)
+	{
+		if (positionReport == null)
+		{
+			return;
+		}
+
+		var position = new Position
+		{
+			ShipMmsi = positionReport.UserID,
+			Latitude = positionReport.Latitude,
+			Longitude = positionReport.Longitude,
+			Sog = positionReport.Sog,
+			Cog = positionReport.Cog,
+			TrueHeading = positionReport.TrueHeading,
+		};
+
+		PositionDataReceived?.Invoke(this, position);
 	}
 
 	private void Process(ShipStaticData? shipData)

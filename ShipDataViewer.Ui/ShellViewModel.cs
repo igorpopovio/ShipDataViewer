@@ -47,6 +47,18 @@ public class ShellViewModel : Screen
 			LastUpdateReceived = DateTime.Now;
 		};
 
+		service.PositionDataReceived += (sender, position) =>
+		{
+			var ship = Ships.SingleOrDefault(s => s.Mmsi == position.ShipMmsi);
+			if (ship == null)
+			{
+				return;
+			}
+
+			ship.LastReportedPosition = position;
+			LastUpdateReceived = DateTime.Now;
+		};
+
 		try
 		{
 			await service.ListenAsync(_cancellationTokenSource.Token);
