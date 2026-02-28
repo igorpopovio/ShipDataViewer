@@ -3,19 +3,17 @@ using ShipDataViewer.Core.Service;
 
 using Stylet;
 
-using System.Collections.ObjectModel;
-
 namespace ShipDataViewer.Ui;
 
 public class ShellViewModel : Screen
 {
 	private readonly string DefaultLoadingMessage = "Ready";
 
-	private CancellationTokenSource cancellationTokenSource = new();
+	private CancellationTokenSource _cancellationTokenSource = new();
 
 	private readonly Func<ServiceConfiguration, IService> _serviceFactory;
 
-	public ObservableCollection<Ship> Ships { get; } = [];
+	public ObservableUniqueCollection<Ship> Ships { get; } = [];
 
 	public string FilterText { get; set; } = string.Empty;
 
@@ -42,19 +40,19 @@ public class ShellViewModel : Screen
 
 		try
 		{
-			await service.ListenAsync(cancellationTokenSource.Token);
+			await service.ListenAsync(_cancellationTokenSource.Token);
 		}
-		catch (OperationCanceledException)
+		catch (TaskCanceledException)
 		{
-			cancellationTokenSource.Dispose();
-			cancellationTokenSource = new CancellationTokenSource();
+			_cancellationTokenSource.Dispose();
+			_cancellationTokenSource = new CancellationTokenSource();
 			LoadingMessage = "Stopped listening to AIS data...";
 		}
 	}
 
 	public async Task StopListening()
 	{
-		await cancellationTokenSource.CancelAsync();
+		await _cancellationTokenSource.CancelAsync();
 	}
 
 	public bool Filter(object obj)
