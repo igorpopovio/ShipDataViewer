@@ -1,24 +1,25 @@
-﻿using Org.OpenAPITools.Client;
+﻿using AisStream.Utils;
+
+using Org.OpenAPITools.Client;
 using Org.OpenAPITools.Model;
 
-using ShipDataViewer.Core;
-using ShipDataViewer.Dtos;
+using ShipDataViewer.Core.Service;
 
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ShipDataViewer.Services;
+namespace AisStream.Service;
 
 public class AisStreamService : IService
 {
 	private const string UriString = "wss://stream.aisstream.io/v0/stream";
-	private readonly ConnectionDetailsDto _connectionDetails;
+	private readonly ServiceConfiguration _connectionDetails;
 
 	private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions();
 
-	public AisStreamService(ConnectionDetailsDto connectionDetails)
+	public AisStreamService(ServiceConfiguration connectionDetails)
 	{
 		_connectionDetails = connectionDetails;
 
@@ -75,7 +76,7 @@ public class AisStreamService : IService
 		_jsonOptions.Converters.Add(new UnknownMessageJsonConverter());
 	}
 
-	public async Task Listen(CancellationToken token = default)
+	public async Task ListenAsync(CancellationToken token = default)
 	{
 		var connectionDetailsJson = JsonSerializer.Serialize(_connectionDetails);
 

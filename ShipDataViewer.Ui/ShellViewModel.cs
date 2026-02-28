@@ -1,9 +1,8 @@
-﻿using ShipDataViewer.Core;
-using ShipDataViewer.Dtos;
+﻿using ShipDataViewer.Core.Service;
 
 using Stylet;
 
-namespace ShipDataViewer;
+namespace ShipDataViewer.Ui;
 
 public class ShellViewModel : Screen
 {
@@ -12,12 +11,12 @@ public class ShellViewModel : Screen
 	private CancellationTokenSource cts = new CancellationTokenSource();
 
 	private readonly IWindowManager _windowManager;
-	private readonly Func<ConnectionDetailsDto, IService> _serviceFactory;
+	private readonly Func<ServiceConfiguration, IService> _serviceFactory;
 
 	public string Details { get; set; } = string.Empty;
 	public string LoadingMessage { get; set; }
 
-	public ShellViewModel(IWindowManager windowManager, Func<ConnectionDetailsDto, IService> serviceFactory)
+	public ShellViewModel(IWindowManager windowManager, Func<ServiceConfiguration, IService> serviceFactory)
 	{
 		DisplayName = "Ship Data Viewer";
 		LoadingMessage = DefaultLoadingMessage;
@@ -43,7 +42,7 @@ public class ShellViewModel : Screen
 	public async Task LoadShipDetailsInternal()
 	{
 		var apiKey = Environment.GetEnvironmentVariable("AIS_STREAM_API_KEY");
-		var service = _serviceFactory(new ConnectionDetailsDto
+		var service = _serviceFactory(new ServiceConfiguration
 		{
 			ApiKey = apiKey!,
 			BoundingBoxes = [[[-11, 178], [30, 74]]],
@@ -51,7 +50,7 @@ public class ShellViewModel : Screen
 
 		try
 		{
-			await service.Listen(cts.Token);
+			await service.ListenAsync(cts.Token);
 			Details = "works";
 		}
 		catch (OperationCanceledException)

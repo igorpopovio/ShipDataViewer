@@ -1,4 +1,4 @@
-﻿namespace ShipDataViewer.Dtos;
+﻿namespace AisStream.Utils;
 
 public class MetadataDto
 {

@@ -1,4 +1,4 @@
-﻿namespace ShipDataViewer;
+﻿namespace ShipDataViewer.Ui;
 
 public partial class ShellView
 {

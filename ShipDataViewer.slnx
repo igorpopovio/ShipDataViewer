@@ -1,5 +1,5 @@
 <Solution>
-  <Project Path="AisStreamService/AisStreamService.csproj" Id="3dcba031-637f-4875-9b41-712710d3baa4" />
+  <Project Path="AisStream/AisStream.csproj" />
   <Project Path="Org.OpenAPITools/Org.OpenAPITools.csproj" />
   <Project Path="ShipDataViewer.Core/ShipDataViewer.Core.csproj" />
   <Project Path="ShipDataViewer.Ui/ShipDataViewer.Ui.csproj" />

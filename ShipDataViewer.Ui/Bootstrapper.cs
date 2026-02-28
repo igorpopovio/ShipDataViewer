@@ -1,9 +1,8 @@
-﻿using Autofac;
+﻿using AisStream.Service;
 
-using ShipDataViewer.Services;
-using ShipDataViewer.Ui;
+using Autofac;
 
-namespace ShipDataViewer;
+namespace ShipDataViewer.Ui;
 
 public class Bootstrapper : AutofacBootstrapper<ShellViewModel>
 {

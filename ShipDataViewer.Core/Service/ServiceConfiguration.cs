@@ -1,6 +1,6 @@
-﻿namespace ShipDataViewer.Dtos;
+﻿namespace ShipDataViewer.Core.Service;
 
-public class ConnectionDetailsDto
+public class ServiceConfiguration
 {
 	public string ApiKey { get; set; } = string.Empty;
 

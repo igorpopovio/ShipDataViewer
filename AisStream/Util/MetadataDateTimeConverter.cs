@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ShipDataViewer.Services;
+namespace AisStream.Utils;
 
 public class MetadataDateTimeConverter : JsonConverter<DateTimeOffset>
 {

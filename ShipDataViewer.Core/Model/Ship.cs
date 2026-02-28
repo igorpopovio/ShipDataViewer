@@ -1,4 +1,4 @@
-﻿namespace ShipDataViewer.Core;
+﻿namespace ShipDataViewer.Core.Model;
 
 public class Ship
 {
