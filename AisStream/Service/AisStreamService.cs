@@ -3,6 +3,7 @@
 using Org.OpenAPITools.Client;
 using Org.OpenAPITools.Model;
 
+using ShipDataViewer.Core.Model;
 using ShipDataViewer.Core.Service;
 
 using System.Net.WebSockets;
@@ -76,6 +77,8 @@ public class AisStreamService : IService
 		_jsonOptions.Converters.Add(new UnknownMessageJsonConverter());
 	}
 
+	public event EventHandler<Ship>? ShipDataReceived;
+
 	public async Task ListenAsync(CancellationToken token = default)
 	{
 		var connectionDetailsJson = JsonSerializer.Serialize(_connectionDetails);
@@ -96,9 +99,32 @@ public class AisStreamService : IService
 			}
 
 			var responseJson = Encoding.Default.GetString(buffer, 0, result.Count);
-			var obj = JsonSerializer.Deserialize<AisStreamMessage>(responseJson, _jsonOptions);
-			var metadataJson = obj?.MetaData.ToString() ?? string.Empty;
+			var aisStreamMessage = JsonSerializer.Deserialize<AisStreamMessage>(responseJson, _jsonOptions);
 
+			if (aisStreamMessage == null)
+			{
+				continue;
+			}
+
+			if (aisStreamMessage.MessageType == AisMessageTypes.ShipStaticData)
+			{
+				var shipData = aisStreamMessage.Message.ShipStaticData;
+				if (shipData == null)
+				{
+					continue;
+				}
+
+				var ship = new Ship
+				{
+					Mmsi = shipData.UserID,
+					Name = shipData.Name,
+					CallSign = shipData.CallSign,
+					ImoNumber = shipData.ImoNumber,
+				};
+				ShipDataReceived?.Invoke(this, ship);
+			}
+
+			var metadataJson = aisStreamMessage?.MetaData.ToString() ?? string.Empty;
 			var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 			jsonOptions.Converters.Add(new MetadataDateTimeConverter());
 			var metadata = JsonSerializer.Deserialize<MetadataDto>(metadataJson, jsonOptions);

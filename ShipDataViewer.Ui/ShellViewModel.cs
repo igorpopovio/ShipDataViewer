@@ -48,6 +48,12 @@ public class ShellViewModel : Screen
 			BoundingBoxes = [[[-11, 178], [30, 74]]],
 		});
 
+		service.ShipDataReceived += (sender, ship) =>
+		{
+			Details += $"Received data for ship: {ship.Name} (MMSI: {ship.Mmsi})";
+			Details += Environment.NewLine;
+		};
+
 		try
 		{
 			await service.ListenAsync(cts.Token);
