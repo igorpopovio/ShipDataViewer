@@ -9,14 +9,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Autofac" Version="9.0.0" />
 		<PackageReference Include="MahApps.Metro" Version="2.4.11" />
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
 		<PackageReference Include="Stylet" Version="1.3.7" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\AisStreamService\AisStreamService.csproj" />
-	  <ProjectReference Include="..\ShipDataViewer.Core\ShipDataViewer.Core.csproj" />
+		<ProjectReference Include="..\AisStreamService\AisStreamService.csproj" />
+		<ProjectReference Include="..\ShipDataViewer.Core\ShipDataViewer.Core.csproj" />
 	</ItemGroup>
 
 </Project>

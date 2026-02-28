@@ -1,18 +1,16 @@
-﻿using ShipDataViewer.Core;
+﻿using Autofac;
+
 using ShipDataViewer.Services;
-
-using Stylet;
-
-using StyletIoC;
+using ShipDataViewer.Ui;
 
 namespace ShipDataViewer;
 
-public class Bootstrapper : Bootstrapper<ShellViewModel>
+public class Bootstrapper : AutofacBootstrapper<ShellViewModel>
 {
-	protected override void ConfigureIoC(IStyletIoCBuilder builder)
+	protected override void ConfigureIoC(ContainerBuilder builder)
 	{
 		base.ConfigureIoC(builder);
-
-		builder.Bind<IService>().To<AisStreamService>();
+		builder.RegisterType<AisStreamService>().AsImplementedInterfaces();
+		// builder.RegisterAssemblyTypes(typeof(AisStreamService).Assembly).AsImplementedInterfaces();
 	}
 }
