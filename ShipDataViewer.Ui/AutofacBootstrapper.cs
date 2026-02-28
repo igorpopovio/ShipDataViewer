@@ -4,6 +4,10 @@ using Stylet;
 
 namespace ShipDataViewer.Ui;
 
+/// <summary>
+/// Code originally from:
+/// https://github.com/canton7/Stylet/blob/master/Bootstrappers/AutofacBootstrapper.cs
+/// </summary>
 public class AutofacBootstrapper<TRootViewModel> : BootstrapperBase where TRootViewModel : class
 {
 	private IContainer? _container;
