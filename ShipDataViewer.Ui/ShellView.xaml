@@ -16,8 +16,8 @@
 		</StatusBar>
 
 		<StackPanel>
-			<Button Command="{s:Action LoadShipDetails}" Content="Load ship details" />
-			<Button Command="{s:Action CancelSubscription}" Content="Cancel ship data subscription" />
+			<Button Command="{s:Action StartListening}" Content="Start listening" />
+			<Button Command="{s:Action StopListening}" Content="Stop listening" />
 			<DataGrid AutoGenerateColumns="True" ItemsSource="{Binding Ships}" />
 		</StackPanel>
 	</DockPanel>
