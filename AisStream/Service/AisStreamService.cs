@@ -1,6 +1,4 @@
-﻿using AisStream.Utils;
-
-using Org.OpenAPITools.Client;
+﻿using Org.OpenAPITools.Client;
 using Org.OpenAPITools.Model;
 
 using ShipDataViewer.Core.Model;
@@ -125,11 +123,6 @@ public class AisStreamService : IService
 
 				ShipDataReceived?.Invoke(this, ship);
 			}
-
-			var metadataJson = aisStreamMessage?.MetaData.ToString() ?? string.Empty;
-			var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-			jsonOptions.Converters.Add(new MetadataDateTimeConverter());
-			var metadata = JsonSerializer.Deserialize<MetadataDto>(metadataJson, jsonOptions);
 		}
 	}
 }
