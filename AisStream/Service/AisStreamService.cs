@@ -49,25 +49,37 @@ public class AisStreamService : IService
 				continue;
 			}
 
-			if (aisStreamMessage.MessageType == AisMessageTypes.ShipStaticData)
+			switch (aisStreamMessage.MessageType)
 			{
-				var shipData = aisStreamMessage.Message.ShipStaticData;
-				if (shipData == null || shipData.ImoNumber == 0)
-				{
-					continue;
-				}
-
-				var ship = new Ship
-				{
-					Mmsi = shipData.UserID,
-					Name = shipData.Name.Trim(),
-					CallSign = shipData.CallSign,
-					ImoNumber = shipData.ImoNumber,
-				};
-
-				ShipDataReceived?.Invoke(this, ship);
+				case AisMessageTypes.ShipStaticData:
+					Process(aisStreamMessage.Message.ShipStaticData);
+					break;
+				case AisMessageTypes.PositionReport:
+					break;
+				case AisMessageTypes.StaticDataReport:
+					break;
+				default:
+					break;
 			}
 		}
+	}
+
+	private void Process(ShipStaticData? shipData)
+	{
+		if (shipData == null || shipData.ImoNumber == 0)
+		{
+			return;
+		}
+
+		var ship = new Ship
+		{
+			Mmsi = shipData.UserID,
+			Name = shipData.Name.Trim(),
+			CallSign = shipData.CallSign,
+			ImoNumber = shipData.ImoNumber,
+		};
+
+		ShipDataReceived?.Invoke(this, ship);
 	}
 
 	private JsonSerializerOptions CreateJsonOptions()
