@@ -10,6 +10,5 @@ public class Bootstrapper : AutofacBootstrapper<ShellViewModel>
 	{
 		base.ConfigureIoC(builder);
 		builder.RegisterType<AisStreamService>().AsImplementedInterfaces();
-		// builder.RegisterAssemblyTypes(typeof(AisStreamService).Assembly).AsImplementedInterfaces();
 	}
 }
