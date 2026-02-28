@@ -9,8 +9,6 @@
 	Width="800"
 	Height="450">
 	<DockPanel>
-
-
 		<StatusBar DockPanel.Dock="Bottom">
 			<StatusBarItem>
 				<TextBlock Text="{Binding LoadingMessage}" />
@@ -20,7 +18,7 @@
 		<StackPanel>
 			<Button Command="{s:Action LoadShipDetails}" Content="Load ship details" />
 			<Button Command="{s:Action CancelSubscription}" Content="Cancel ship data subscription" />
-			<TextBlock Text="{Binding Details}" />
+			<DataGrid AutoGenerateColumns="True" ItemsSource="{Binding Ships}" />
 		</StackPanel>
 	</DockPanel>
 </mah:MetroWindow>

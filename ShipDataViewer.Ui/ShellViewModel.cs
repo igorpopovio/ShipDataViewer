@@ -1,6 +1,9 @@
-﻿using ShipDataViewer.Core.Service;
+﻿using ShipDataViewer.Core.Model;
+using ShipDataViewer.Core.Service;
 
 using Stylet;
+
+using System.Collections.ObjectModel;
 
 namespace ShipDataViewer.Ui;
 
@@ -13,7 +16,8 @@ public class ShellViewModel : Screen
 	private readonly IWindowManager _windowManager;
 	private readonly Func<ServiceConfiguration, IService> _serviceFactory;
 
-	public string Details { get; set; } = string.Empty;
+	public ObservableCollection<Ship> Ships { get; } = new ObservableCollection<Ship>();
+
 	public string LoadingMessage { get; set; }
 
 	public ShellViewModel(IWindowManager windowManager, Func<ServiceConfiguration, IService> serviceFactory)
@@ -26,21 +30,7 @@ public class ShellViewModel : Screen
 
 	public async Task LoadShipDetails()
 	{
-		LoadingMessage = "Connecting to server...";
-		await LoadShipDetailsInternal();
-		Details = "Data loaded";
-		LoadingMessage = "Data loaded successfully!";
-		await Task.Delay(2000);
-		LoadingMessage = DefaultLoadingMessage;
-	}
-
-	public async Task CancelSubscription()
-	{
-		await cts.CancelAsync();
-	}
-
-	public async Task LoadShipDetailsInternal()
-	{
+		LoadingMessage = "Listening to AIS data...";
 		var apiKey = Environment.GetEnvironmentVariable("AIS_STREAM_API_KEY");
 		var service = _serviceFactory(new ServiceConfiguration
 		{
@@ -48,23 +38,23 @@ public class ShellViewModel : Screen
 			BoundingBoxes = [[[-11, 178], [30, 74]]],
 		});
 
-		service.ShipDataReceived += (sender, ship) =>
-		{
-			Details += $"Received data for ship: {ship.Name} (MMSI: {ship.Mmsi})";
-			Details += Environment.NewLine;
-		};
+		service.ShipDataReceived += (sender, ship) => { Ships.Add(ship); };
 
 		try
 		{
 			await service.ListenAsync(cts.Token);
-			Details = "works";
 		}
 		catch (OperationCanceledException)
 		{
-			Details = "Subscription cancelled.";
 			cts.Dispose();
 			cts = new CancellationTokenSource();
+			LoadingMessage = "Stopped listening to AIS data...";
 			return;
 		}
+	}
+
+	public async Task CancelSubscription()
+	{
+		await cts.CancelAsync();
 	}
 }
