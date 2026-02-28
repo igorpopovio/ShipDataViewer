@@ -44,9 +44,22 @@
 			<DataGrid
 				x:Name="ShipDataGrid"
 				Grid.Row="3"
-				AutoGenerateColumns="True"
+				AutoGenerateColumns="False"
 				IsReadOnly="True"
-				ItemsSource="{Binding Ships}" />
+				ItemsSource="{Binding Ships}">
+				<DataGrid.Columns>
+					<DataGridTextColumn Binding="{Binding Mmsi}" Header="Mmsi" />
+					<DataGridTextColumn Binding="{Binding ImoNumber}" Header="ImoNumber" />
+					<DataGridTextColumn Binding="{Binding Name}" Header="Name" />
+					<DataGridTextColumn Binding="{Binding CallSign}" Header="CallSign" />
+					<DataGridTextColumn Binding="{Binding LastReportedPosition.Latitude}" Header="Latitude" />
+					<DataGridTextColumn Binding="{Binding LastReportedPosition.Longitude}" Header="Longitude" />
+					<DataGridTextColumn Binding="{Binding LastReportedPosition.Sog}" Header="Sog" />
+					<DataGridTextColumn Binding="{Binding LastReportedPosition.Cog}" Header="Cog" />
+					<DataGridTextColumn Binding="{Binding LastReportedPosition.TrueHeading:G}" Header="TrueHeading" />
+					<DataGridTextColumn Binding="{Binding LastUpdated}" Header="Last updated" />
+				</DataGrid.Columns>
+			</DataGrid>
 		</Grid>
 	</DockPanel>
 </mah:MetroWindow>

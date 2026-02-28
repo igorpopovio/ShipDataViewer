@@ -56,7 +56,8 @@ public class ShellViewModel : Screen
 			}
 
 			ship.LastReportedPosition = position;
-			LastUpdateReceived = DateTime.Now;
+			ship.LastUpdated = DateTime.Now;
+			LastUpdateReceived = ship.LastUpdated;
 		};
 
 		try
