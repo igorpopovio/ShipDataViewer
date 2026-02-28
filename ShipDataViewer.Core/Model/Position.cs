@@ -1,6 +1,8 @@
-﻿namespace ShipDataViewer.Core.Model;
+﻿using System.ComponentModel;
 
-public class Position
+namespace ShipDataViewer.Core.Model;
+
+public partial class Position : INotifyPropertyChanged
 {
 	public int ShipMmsi { get; set; }
 	public double Latitude { get; set; }

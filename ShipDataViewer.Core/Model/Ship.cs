@@ -1,6 +1,8 @@
-﻿namespace ShipDataViewer.Core.Model;
+﻿using System.ComponentModel;
 
-public class Ship : IEquatable<Ship>
+namespace ShipDataViewer.Core.Model;
+
+public partial class Ship : IEquatable<Ship>, INotifyPropertyChanged
 {
 	public int Mmsi { get; set; }
 	public int ImoNumber { get; set; }
