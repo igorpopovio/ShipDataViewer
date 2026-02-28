@@ -27,10 +27,6 @@ public class ObservableUniqueCollection<T> : ObservableCollection<T>
 		{
 			base.InsertItem(index, item);
 		}
-		else
-		{
-
-		}
 	}
 
 	protected override void ClearItems()
