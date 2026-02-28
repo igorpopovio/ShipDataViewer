@@ -11,4 +11,28 @@ public class Ship : IEquatable<Ship>
 	{
 		return other is not null && Mmsi == other.Mmsi;
 	}
+
+	public override bool Equals(object? obj) => Equals(obj as Ship);
+
+	public override int GetHashCode() => Mmsi.GetHashCode();
+
+	public static bool operator ==(Ship ship1, Ship ship2)
+	{
+		if (ship1 is null)
+		{
+			return ship2 is null;
+		}
+
+		return ship1.Equals(ship2);
+	}
+
+	public static bool operator !=(Ship ship1, Ship ship2)
+	{
+		if (ship1 is null)
+		{
+			return ship2 is not null;
+		}
+
+		return !ship1.Equals(ship2);
+	}
 }
