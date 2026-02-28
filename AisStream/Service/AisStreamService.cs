@@ -16,13 +16,14 @@ namespace AisStream.Service;
 public class AisStreamService : IService
 {
 	private const string UriString = "wss://stream.aisstream.io/v0/stream";
-	private readonly ServiceConfiguration _connectionDetails;
+
+	private readonly ServiceConfiguration _serviceConfiguration;
 
 	private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions();
 
-	public AisStreamService(ServiceConfiguration connectionDetails)
+	public AisStreamService(ServiceConfiguration serviceConfiguration)
 	{
-		_connectionDetails = connectionDetails;
+		_serviceConfiguration = serviceConfiguration;
 
 		_jsonOptions.Converters.Add(new JsonStringEnumConverter());
 		_jsonOptions.Converters.Add(new DateTimeJsonConverter());
@@ -81,24 +82,24 @@ public class AisStreamService : IService
 
 	public async Task ListenAsync(CancellationToken token = default)
 	{
-		var connectionDetailsJson = JsonSerializer.Serialize(_connectionDetails);
+		var connectionDetailsJson = JsonSerializer.Serialize(_serviceConfiguration);
 
 		using var webSocket = new ClientWebSocket();
 		await webSocket.ConnectAsync(new Uri(UriString), token);
-		await webSocket.SendAsync(new ArraySegment<byte>(Encoding.Default.GetBytes(connectionDetailsJson)), WebSocketMessageType.Text, true, token);
+		await webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(connectionDetailsJson)), WebSocketMessageType.Text, true, token);
 		var buffer = new byte[4096];
 
 		while (webSocket.State == WebSocketState.Open)
 		{
-			var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
+			var response = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
 
-			if (result.MessageType == WebSocketMessageType.Close)
+			if (response.MessageType == WebSocketMessageType.Close)
 			{
 				await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, token);
 				return;
 			}
 
-			var responseJson = Encoding.Default.GetString(buffer, 0, result.Count);
+			var responseJson = Encoding.UTF8.GetString(buffer, 0, response.Count);
 			var aisStreamMessage = JsonSerializer.Deserialize<AisStreamMessage>(responseJson, _jsonOptions);
 
 			if (aisStreamMessage == null)
@@ -109,7 +110,7 @@ public class AisStreamService : IService
 			if (aisStreamMessage.MessageType == AisMessageTypes.ShipStaticData)
 			{
 				var shipData = aisStreamMessage.Message.ShipStaticData;
-				if (shipData == null)
+				if (shipData == null || shipData.ImoNumber == 0)
 				{
 					continue;
 				}
@@ -117,10 +118,11 @@ public class AisStreamService : IService
 				var ship = new Ship
 				{
 					Mmsi = shipData.UserID,
-					Name = shipData.Name,
+					Name = shipData.Name.Trim(),
 					CallSign = shipData.CallSign,
 					ImoNumber = shipData.ImoNumber,
 				};
+
 				ShipDataReceived?.Invoke(this, ship);
 			}
 
