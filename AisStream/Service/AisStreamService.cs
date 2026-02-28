@@ -12,35 +12,32 @@ namespace AisStream.Service;
 
 public class AisStreamService : IService
 {
-	private const string UriString = "wss://stream.aisstream.io/v0/stream";
+	private readonly Uri _serviceUri = new("wss://stream.aisstream.io/v0/stream");
 
 	private readonly ServiceConfiguration _serviceConfiguration;
 
 	public event EventHandler<Ship>? ShipDataReceived;
 
-	public AisStreamService(ServiceConfiguration serviceConfiguration)
-	{
-		_serviceConfiguration = serviceConfiguration;
-	}
+	public AisStreamService(ServiceConfiguration serviceConfiguration) => _serviceConfiguration = serviceConfiguration;
 
-	public async Task ListenAsync(CancellationToken token = default)
+	public async Task ListenAsync(CancellationToken cancellationToken = default)
 	{
 		using var webSocket = new ClientWebSocket();
-		await webSocket.ConnectAsync(new Uri(UriString), token);
+		await webSocket.ConnectAsync(_serviceUri, cancellationToken);
 
 		var serviceConfigurationJson = JsonSerializer.Serialize(_serviceConfiguration);
 		var serviceConfigurationBytes = Encoding.UTF8.GetBytes(serviceConfigurationJson);
-		await webSocket.SendAsync(new ArraySegment<byte>(serviceConfigurationBytes), WebSocketMessageType.Text, true, token);
+		await webSocket.SendAsync(new ArraySegment<byte>(serviceConfigurationBytes), WebSocketMessageType.Text, true, cancellationToken);
 
 		var buffer = new byte[4096];
 		var jsonSerializerOptions = CreateJsonOptions();
 		while (webSocket.State == WebSocketState.Open)
 		{
-			var response = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
+			var response = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
 
 			if (response.MessageType == WebSocketMessageType.Close)
 			{
-				await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, token);
+				await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, cancellationToken);
 				return;
 			}
 
