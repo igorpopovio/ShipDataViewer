@@ -39,6 +39,9 @@
 				Content="Stop listening" />
 			<TextBox
 				Grid.Row="2"
+				mah:TextBoxHelper.ClearTextButton="True"
+				mah:TextBoxHelper.SelectAllOnFocus="True"
+				mah:TextBoxHelper.Watermark="Search ship MMSI, Imo Number, Name or Call Sign..."
 				Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}"
 				TextChanged="TextBox_TextChanged" />
 			<DataGrid
