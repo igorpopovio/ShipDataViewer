@@ -1,6 +1,7 @@
 ﻿using Org.OpenAPITools.Client;
 using Org.OpenAPITools.Model;
 
+using ShipDataViewer.Core;
 using ShipDataViewer.Dtos;
 
 using System.Net.WebSockets;

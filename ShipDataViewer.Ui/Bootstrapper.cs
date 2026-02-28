@@ -1,4 +1,7 @@
-﻿using Stylet;
+﻿using ShipDataViewer.Core;
+using ShipDataViewer.Services;
+
+using Stylet;
 
 using StyletIoC;
 
@@ -10,6 +13,6 @@ public class Bootstrapper : Bootstrapper<ShellViewModel>
 	{
 		base.ConfigureIoC(builder);
 
-		//builder.Bind<IDialogFactory>().ToAbstractFactory();
+		builder.Bind<IService>().To<AisStreamService>();
 	}
 }
