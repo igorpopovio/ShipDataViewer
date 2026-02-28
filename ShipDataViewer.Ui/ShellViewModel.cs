@@ -42,7 +42,7 @@ public class ShellViewModel : Screen
 		{
 			await service.ListenAsync(_cancellationTokenSource.Token);
 		}
-		catch (TaskCanceledException)
+		catch (OperationCanceledException)
 		{
 			_cancellationTokenSource.Dispose();
 			_cancellationTokenSource = new CancellationTokenSource();
