@@ -19,7 +19,7 @@ public class ShellViewModel : Screen
 
 	public string LoadingMessage { get; set; }
 
-	public DateTime LastUpdateReceived { get; set; }
+	public DateTime? LastUpdateReceived { get; set; }
 	public string LastUpdateMessage => $"Last Update Received: {LastUpdateReceived:G}";
 	public string ShipsReportedMessage => $"Total Ships Reported: {Ships.Count}";
 

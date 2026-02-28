@@ -9,7 +9,7 @@ public partial class Ship : IEquatable<Ship>, INotifyPropertyChanged
 	public string Name { get; set; } = string.Empty;
 	public string CallSign { get; set; } = string.Empty;
 	public Position? LastReportedPosition { get; set; }
-	public DateTime LastUpdated { get; set; }
+	public DateTime? LastUpdated { get; set; }
 
 	public bool Equals(Ship? other)
 	{
