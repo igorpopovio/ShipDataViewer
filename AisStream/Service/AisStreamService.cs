@@ -98,7 +98,7 @@ public class AisStreamService : IService
 		{
 			Mmsi = shipData.UserID,
 			Name = shipData.Name.Trim(),
-			CallSign = shipData.CallSign,
+			CallSign = shipData.CallSign.Trim(),
 			ImoNumber = shipData.ImoNumber,
 		};
 
