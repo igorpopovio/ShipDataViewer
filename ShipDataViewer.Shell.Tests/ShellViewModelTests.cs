@@ -24,6 +24,7 @@ public class ShellViewModelTests
 	public void Teardown()
 	{
 		_mock.Dispose();
+		_shellViewModel.Dispose();
 	}
 
 	[Test]

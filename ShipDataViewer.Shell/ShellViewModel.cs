@@ -51,8 +51,7 @@ public class ShellViewModel : Screen, IDisposable
 		}
 		catch (OperationCanceledException)
 		{
-			_service.ShipDataReceived -= OnShipDataReceived;
-			_service.PositionDataReceived -= OnShipPositionDataReceived;
+			UnsubscribeFromEvents();
 			_cancellationTokenSource.Dispose();
 			_cancellationTokenSource = new CancellationTokenSource();
 		}
@@ -60,12 +59,7 @@ public class ShellViewModel : Screen, IDisposable
 
 	public async Task StopListeningAsync()
 	{
-		if (_service != null)
-		{
-			_service.ShipDataReceived -= OnShipDataReceived;
-			_service.PositionDataReceived -= OnShipPositionDataReceived;
-			_service = null;
-		}
+		UnsubscribeFromEvents();
 
 		await _cancellationTokenSource.CancelAsync();
 		LoadingMessage = "Stopped listening to AIS data...";
@@ -79,6 +73,12 @@ public class ShellViewModel : Screen, IDisposable
 		}
 
 		return ship.Name.Contains(FilterText, StringComparison.OrdinalIgnoreCase);
+	}
+
+	public void Dispose()
+	{
+		UnsubscribeFromEvents();
+		_cancellationTokenSource.Dispose();
 	}
 
 	private void OnShipDataReceived(object? sender, Ship ship)
@@ -101,14 +101,15 @@ public class ShellViewModel : Screen, IDisposable
 		LastUpdateReceived = ship.LastUpdated;
 	}
 
-	public void Dispose()
+	private void UnsubscribeFromEvents()
 	{
-		if (_service != null)
+		if (_service == null)
 		{
-			_service.ShipDataReceived -= OnShipDataReceived;
-			_service.PositionDataReceived -= OnShipPositionDataReceived;
-			_service = null;
+			return;
 		}
-		_cancellationTokenSource.Dispose();
+
+		_service.ShipDataReceived -= OnShipDataReceived;
+		_service.PositionDataReceived -= OnShipPositionDataReceived;
+		_service = null;
 	}
 }
