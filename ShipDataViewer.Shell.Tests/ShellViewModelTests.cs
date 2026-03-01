@@ -98,4 +98,20 @@ public class ShellViewModelTests
 
 		Assert.That(_shellViewModel.Ships, Has.Count.EqualTo(0));
 	}
+
+	[Test]
+	public async Task CanFilter()
+	{
+		using (Assert.EnterMultipleScope())
+		{
+			_shellViewModel.FilterText = "ship";
+			Assert.That(_shellViewModel.Filter(new Ship { Mmsi = 1234, Name = "Ship1" }), "Matches filter");
+
+			_shellViewModel.FilterText = "some filter that will not find anything";
+			Assert.That(_shellViewModel.Filter(new Ship { Mmsi = 1234, Name = "Ship1" }), Is.False, "Matches filter");
+
+			_shellViewModel.FilterText = "123";
+			Assert.That(_shellViewModel.Filter(new Ship { Mmsi = 1234, Name = "Ship1" }), "Matches Mmsi partially");
+		}
+	}
 }

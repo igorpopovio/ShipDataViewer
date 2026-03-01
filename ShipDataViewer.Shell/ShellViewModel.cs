@@ -72,7 +72,9 @@ public class ShellViewModel : Screen, IDisposable
 			return false;
 		}
 
-		return ship.Name.Contains(FilterText, StringComparison.OrdinalIgnoreCase);
+		return
+			ship.Name.Contains(FilterText, StringComparison.OrdinalIgnoreCase)
+			|| ship.Mmsi.ToString().Contains(FilterText);
 	}
 
 	public void Dispose()
