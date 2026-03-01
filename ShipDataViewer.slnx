@@ -2,5 +2,6 @@
   <Project Path="AisStream/AisStream.csproj" />
   <Project Path="Org.OpenAPITools/Org.OpenAPITools.csproj" />
   <Project Path="ShipDataViewer.Core/ShipDataViewer.Core.csproj" />
+  <Project Path="ShipDataViewer.Shell.Tests/ShipDataViewer.Shell.Tests.csproj" Id="bc6ad087-658e-4754-8c7a-2fb96f8ffd90" />
   <Project Path="ShipDataViewer.Shell/ShipDataViewer.Shell.csproj" />
 </Solution>
