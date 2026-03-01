@@ -53,6 +53,19 @@ public class ShellViewModelTests
 	}
 
 	[Test]
+	public async Task ShipDataIsUnique()
+	{
+		await _shellViewModel.StartListeningAsync();
+
+		var ship = new Ship { Mmsi = 1, Name = "Test Ship" };
+
+		_mock.Mock<IService>().Raise(service => service.ShipDataReceived += null, this, ship);
+		_mock.Mock<IService>().Raise(service => service.ShipDataReceived += null, this, ship);
+
+		Assert.That(_shellViewModel.Ships, Has.Exactly(1).Matches<Ship>(s => s.Name == "Test Ship"));
+	}
+
+	[Test]
 	public async Task UpdatesShipPosition()
 	{
 		await _shellViewModel.StartListeningAsync();
