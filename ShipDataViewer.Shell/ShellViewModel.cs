@@ -5,12 +5,12 @@ using Stylet;
 
 namespace ShipDataViewer.Shell;
 
-public class ShellViewModel : Screen
+public class ShellViewModel : Screen, IDisposable
 {
 	private readonly string DefaultLoadingMessage = "Ready";
 
 	private CancellationTokenSource _cancellationTokenSource = new();
-
+	private IService? _service;
 	private readonly Func<ServiceConfiguration, IService> _serviceFactory;
 
 	public string? ApiKey { get; set; }
@@ -36,38 +36,23 @@ public class ShellViewModel : Screen
 	{
 		LoadingMessage = "Listening to AIS data...";
 		var apiKey = ApiKey ?? Environment.GetEnvironmentVariable("AIS_STREAM_API_KEY") ?? throw new ArgumentNullException("AIS_STREAM_API_KEY");
-		var service = _serviceFactory(new ServiceConfiguration
+		_service = _serviceFactory(new ServiceConfiguration
 		{
 			ApiKey = apiKey,
 			BoundingBoxes = [[[-11, 178], [30, 74]]],
 		});
 
-		service.ShipDataReceived += (sender, ship) =>
-		{
-			Ships.Add(ship);
-			NotifyOfPropertyChange(() => ShipsReportedMessage);
-			LastUpdateReceived = DateTime.Now;
-		};
-
-		service.PositionDataReceived += (sender, position) =>
-		{
-			var ship = Ships.SingleOrDefault(s => s.Mmsi == position.ShipMmsi);
-			if (ship is null)
-			{
-				return;
-			}
-
-			ship.LastReportedPosition = position;
-			ship.LastUpdated = DateTime.Now;
-			LastUpdateReceived = ship.LastUpdated;
-		};
+		_service.ShipDataReceived += OnShipDataReceived;
+		_service.PositionDataReceived += OnShipPositionDataReceived;
 
 		try
 		{
-			await service.ListenAsync(_cancellationTokenSource.Token);
+			await _service.ListenAsync(_cancellationTokenSource.Token);
 		}
 		catch (OperationCanceledException)
 		{
+			_service.ShipDataReceived -= OnShipDataReceived;
+			_service.PositionDataReceived -= OnShipPositionDataReceived;
 			_cancellationTokenSource.Dispose();
 			_cancellationTokenSource = new CancellationTokenSource();
 		}
@@ -75,6 +60,13 @@ public class ShellViewModel : Screen
 
 	public async Task StopListeningAsync()
 	{
+		if (_service != null)
+		{
+			_service.ShipDataReceived -= OnShipDataReceived;
+			_service.PositionDataReceived -= OnShipPositionDataReceived;
+			_service = null;
+		}
+
 		await _cancellationTokenSource.CancelAsync();
 		LoadingMessage = "Stopped listening to AIS data...";
 	}
@@ -87,5 +79,36 @@ public class ShellViewModel : Screen
 		}
 
 		return ship.Name.Contains(FilterText, StringComparison.OrdinalIgnoreCase);
+	}
+
+	private void OnShipDataReceived(object? sender, Ship ship)
+	{
+		Ships.Add(ship);
+		NotifyOfPropertyChange(() => ShipsReportedMessage);
+		LastUpdateReceived = DateTime.Now;
+	}
+
+	private void OnShipPositionDataReceived(object? sender, Position position)
+	{
+		var ship = Ships.SingleOrDefault(s => s.Mmsi == position.ShipMmsi);
+		if (ship is null)
+		{
+			return;
+		}
+
+		ship.LastReportedPosition = position;
+		ship.LastUpdated = DateTime.Now;
+		LastUpdateReceived = ship.LastUpdated;
+	}
+
+	public void Dispose()
+	{
+		if (_service != null)
+		{
+			_service.ShipDataReceived -= OnShipDataReceived;
+			_service.PositionDataReceived -= OnShipPositionDataReceived;
+			_service = null;
+		}
+		_cancellationTokenSource.Dispose();
 	}
 }

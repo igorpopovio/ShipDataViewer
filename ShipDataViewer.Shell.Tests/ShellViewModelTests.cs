@@ -95,10 +95,6 @@ public class ShellViewModelTests
 
 		_mock.Mock<IService>().Raise(service => service.ShipDataReceived += null, this, new Ship { Mmsi = 1, Name = "Test Ship" });
 
-		Assert.That(_shellViewModel.Ships, Has.Count.EqualTo(1));
-
-		_mock.Mock<IService>().Raise(service => service.ShipDataReceived += null, this, new Ship { Mmsi = 2, Name = "Another Test Ship" });
-
-		Assert.That(_shellViewModel.Ships, Has.Count.EqualTo(1));
+		Assert.That(_shellViewModel.Ships, Has.Count.EqualTo(0));
 	}
 }
