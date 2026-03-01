@@ -7,42 +7,48 @@ namespace ShipDataViewer.Shell.Tests;
 
 public class ShellViewModelTests
 {
+	private AutoMock _mock;
+	private ShellViewModel _shellViewModel;
+
+	[SetUp]
+	public void Setup()
+	{
+		_mock = AutoMock.GetLoose();
+		_shellViewModel = _mock.Create<ShellViewModel>();
+		_shellViewModel.ApiKey = "dummy-key-for-tests";
+	}
+
+	[TearDown]
+	public void Teardown()
+	{
+		_mock.Dispose();
+	}
+
 	[Test]
 	public void HasDisplayName()
 	{
-		using var mock = AutoMock.GetLoose();
-		var shellViewModel = mock.Create<ShellViewModel>();
-
-		Assert.That(shellViewModel.DisplayName, Is.EqualTo("Ship Data Viewer"));
+		Assert.That(_shellViewModel.DisplayName, Is.EqualTo("Ship Data Viewer"));
 	}
 
 	[Test]
 	public async Task UpdatesLoadingMessage()
 	{
-		using var mock = AutoMock.GetLoose();
-		var shellViewModel = mock.Create<ShellViewModel>();
-		shellViewModel.ApiKey = "dummy-key-for-tests";
+		Assert.That(_shellViewModel.LoadingMessage, Is.EqualTo("Ready"));
 
-		Assert.That(shellViewModel.LoadingMessage, Is.EqualTo("Ready"));
+		await _shellViewModel.StartListeningAsync();
+		Assert.That(_shellViewModel.LoadingMessage, Is.EqualTo("Listening to AIS data..."));
 
-		await shellViewModel.StartListeningAsync();
-		Assert.That(shellViewModel.LoadingMessage, Is.EqualTo("Listening to AIS data..."));
-
-		await shellViewModel.StopListeningAsync();
-		Assert.That(shellViewModel.LoadingMessage, Is.EqualTo("Stopped listening to AIS data..."));
+		await _shellViewModel.StopListeningAsync();
+		Assert.That(_shellViewModel.LoadingMessage, Is.EqualTo("Stopped listening to AIS data..."));
 	}
 
 	[Test]
 	public async Task CanListenToShipData()
 	{
-		using var mock = AutoMock.GetLoose();
-		var shellViewModel = mock.Create<ShellViewModel>();
-		shellViewModel.ApiKey = "dummy-key-for-tests";
+		await _shellViewModel.StartListeningAsync();
 
-		await shellViewModel.StartListeningAsync();
+		_mock.Mock<IService>().Raise(service => service.ShipDataReceived += null, this, new Ship { Name = "Test Ship" });
 
-		mock.Mock<IService>().Raise(service => service.ShipDataReceived += null, this, new Ship { Name = "Test Ship" });
-
-		Assert.That(shellViewModel.Ships, Has.Exactly(1).Matches<Ship>(s => s.Name == "Test Ship"));
+		Assert.That(_shellViewModel.Ships, Has.Exactly(1).Matches<Ship>(s => s.Name == "Test Ship"));
 	}
 }
