@@ -1,5 +1,7 @@
 ﻿using Autofac.Extras.Moq;
 
+using Moq;
+
 using ShipDataViewer.Core.Model;
 using ShipDataViewer.Core.Service;
 
@@ -79,5 +81,24 @@ public class ShellViewModelTests
 
 		Assert.That(ship.LastReportedPosition, Is.EqualTo(position));
 		Assert.That(ship.LastUpdated, Is.Not.Null);
+	}
+
+	[Test]
+	public async Task StopsListeningToUpdatesOnceCancelled()
+	{
+		_mock
+			.Mock<IService>()
+			.Setup(service => service.ListenAsync(It.IsAny<CancellationToken>()))
+			.ThrowsAsync(new OperationCanceledException());
+
+		await _shellViewModel.StartListeningAsync();
+
+		_mock.Mock<IService>().Raise(service => service.ShipDataReceived += null, this, new Ship { Mmsi = 1, Name = "Test Ship" });
+
+		Assert.That(_shellViewModel.Ships, Has.Count.EqualTo(1));
+
+		_mock.Mock<IService>().Raise(service => service.ShipDataReceived += null, this, new Ship { Mmsi = 2, Name = "Another Test Ship" });
+
+		Assert.That(_shellViewModel.Ships, Has.Count.EqualTo(1));
 	}
 }
