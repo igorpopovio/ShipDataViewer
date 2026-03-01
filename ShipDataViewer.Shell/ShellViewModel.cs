@@ -13,6 +13,8 @@ public class ShellViewModel : Screen
 
 	private readonly Func<ServiceConfiguration, IService> _serviceFactory;
 
+	public string? ApiKey { get; set; }
+
 	public ObservableUniqueCollection<Ship> Ships { get; } = [];
 
 	public string FilterText { get; set; } = string.Empty;
@@ -33,7 +35,7 @@ public class ShellViewModel : Screen
 	public async Task StartListeningAsync()
 	{
 		LoadingMessage = "Listening to AIS data...";
-		var apiKey = Environment.GetEnvironmentVariable("AIS_STREAM_API_KEY") ?? throw new ArgumentNullException("AIS_STREAM_API_KEY");
+		var apiKey = ApiKey ?? Environment.GetEnvironmentVariable("AIS_STREAM_API_KEY") ?? throw new ArgumentNullException("AIS_STREAM_API_KEY");
 		var service = _serviceFactory(new ServiceConfiguration
 		{
 			ApiKey = apiKey,
