@@ -12,4 +12,15 @@ public class ShellViewModelTests
 
 		Assert.That(shellViewModel.DisplayName, Is.EqualTo("Ship Data Viewer"));
 	}
+
+	[Test]
+	public async Task CanListenToChanges()
+	{
+		using var mock = AutoMock.GetLoose();
+		var shellViewModel = mock.Create<ShellViewModel>();
+		shellViewModel.ApiKey = "dummy-key-for-tests";
+		await shellViewModel.StartListeningAsync();
+
+		Assert.That(shellViewModel.DisplayName, Is.EqualTo("Ship Data Viewer"));
+	}
 }
