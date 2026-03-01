@@ -36,15 +36,12 @@ public class ShellViewModelTests
 	public async Task CanListenToShipData()
 	{
 		using var mock = AutoMock.GetLoose();
-		var serviceMock = mock.Mock<IService>();
 		var shellViewModel = mock.Create<ShellViewModel>();
 		shellViewModel.ApiKey = "dummy-key-for-tests";
 
-		var listeningTask = shellViewModel.StartListeningAsync();
+		await shellViewModel.StartListeningAsync();
 
-		serviceMock.Raise(service => service.ShipDataReceived += null, this, new Ship { Name = "Test Ship" });
-
-		await listeningTask;
+		mock.Mock<IService>().Raise(service => service.ShipDataReceived += null, this, new Ship { Name = "Test Ship" });
 
 		Assert.That(shellViewModel.Ships, Has.Exactly(1).Matches<Ship>(s => s.Name == "Test Ship"));
 	}
