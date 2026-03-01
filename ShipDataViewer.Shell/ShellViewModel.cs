@@ -30,7 +30,7 @@ public class ShellViewModel : Screen
 		_serviceFactory = serviceFactory;
 	}
 
-	public async Task StartListening()
+	public async Task StartListeningAsync()
 	{
 		LoadingMessage = "Listening to AIS data...";
 		var apiKey = Environment.GetEnvironmentVariable("AIS_STREAM_API_KEY") ?? throw new ArgumentNullException("AIS_STREAM_API_KEY");
@@ -72,7 +72,7 @@ public class ShellViewModel : Screen
 		}
 	}
 
-	public async Task StopListening()
+	public async Task StopListeningAsync()
 	{
 		await _cancellationTokenSource.CancelAsync();
 	}

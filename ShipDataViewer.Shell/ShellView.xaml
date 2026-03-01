@@ -31,11 +31,11 @@
 			</Grid.RowDefinitions>
 			<Button
 				Grid.Row="0"
-				Command="{s:Action StartListening}"
+				Command="{s:Action StartListeningAsync}"
 				Content="Start listening" />
 			<Button
 				Grid.Row="1"
-				Command="{s:Action StopListening}"
+				Command="{s:Action StopListeningAsync}"
 				Content="Stop listening" />
 			<TextBox
 				Grid.Row="2"
