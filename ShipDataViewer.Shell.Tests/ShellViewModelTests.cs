@@ -112,6 +112,12 @@ public class ShellViewModelTests
 
 			_shellViewModel.FilterText = "123";
 			Assert.That(_shellViewModel.Filter(new Ship { Mmsi = 1234, Name = "Ship1" }), "Matches Mmsi partially");
+
+			_shellViewModel.FilterText = "123";
+			Assert.That(_shellViewModel.Filter(new Ship { ImoNumber = 1234 }), "Matches ImoNumber partially");
+
+			_shellViewModel.FilterText = "some";
+			Assert.That(_shellViewModel.Filter(new Ship { CallSign = "something" }), "Matches CallSign partially");
 		}
 	}
 }

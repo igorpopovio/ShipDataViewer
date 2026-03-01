@@ -74,7 +74,9 @@ public class ShellViewModel : Screen, IDisposable
 
 		return
 			ship.Name.Contains(FilterText, StringComparison.OrdinalIgnoreCase)
-			|| ship.Mmsi.ToString().Contains(FilterText);
+			|| ship.Mmsi.ToString().Contains(FilterText)
+			|| ship.ImoNumber.ToString().Contains(FilterText)
+			|| ship.CallSign.Contains(FilterText, StringComparison.OrdinalIgnoreCase);
 	}
 
 	public void Dispose()
