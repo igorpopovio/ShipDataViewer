@@ -78,5 +78,6 @@ public class ShellViewModelTests
 		_mock.Mock<IService>().Raise(service => service.PositionDataReceived += null, this, position);
 
 		Assert.That(ship.LastReportedPosition, Is.EqualTo(position));
+		Assert.That(ship.LastUpdated, Is.Not.Null);
 	}
 }
