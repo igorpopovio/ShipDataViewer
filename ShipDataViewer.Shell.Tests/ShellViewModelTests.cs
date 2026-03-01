@@ -14,13 +14,18 @@ public class ShellViewModelTests
 	}
 
 	[Test]
-	public async Task CanListenToChanges()
+	public async Task UpdatesLoadingMessage()
 	{
 		using var mock = AutoMock.GetLoose();
 		var shellViewModel = mock.Create<ShellViewModel>();
 		shellViewModel.ApiKey = "dummy-key-for-tests";
-		await shellViewModel.StartListeningAsync();
 
-		Assert.That(shellViewModel.DisplayName, Is.EqualTo("Ship Data Viewer"));
+		Assert.That(shellViewModel.LoadingMessage, Is.EqualTo("Ready"));
+
+		await shellViewModel.StartListeningAsync();
+		Assert.That(shellViewModel.LoadingMessage, Is.EqualTo("Listening to AIS data..."));
+
+		await shellViewModel.StopListeningAsync();
+		Assert.That(shellViewModel.LoadingMessage, Is.EqualTo("Stopped listening to AIS data..."));
 	}
 }

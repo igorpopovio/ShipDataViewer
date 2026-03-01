@@ -70,13 +70,13 @@ public class ShellViewModel : Screen
 		{
 			_cancellationTokenSource.Dispose();
 			_cancellationTokenSource = new CancellationTokenSource();
-			LoadingMessage = "Stopped listening to AIS data...";
 		}
 	}
 
 	public async Task StopListeningAsync()
 	{
 		await _cancellationTokenSource.CancelAsync();
+		LoadingMessage = "Stopped listening to AIS data...";
 	}
 
 	public bool Filter(object obj)
