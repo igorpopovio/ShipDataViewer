@@ -52,7 +52,7 @@ public class ShellViewModel : Screen
 		service.PositionDataReceived += (sender, position) =>
 		{
 			var ship = Ships.SingleOrDefault(s => s.Mmsi == position.ShipMmsi);
-			if (ship == null)
+			if (ship is null)
 			{
 				return;
 			}
