@@ -43,12 +43,27 @@ public class ShellViewModelTests
 	}
 
 	[Test]
-	public async Task CanListenToShipData()
+	public async Task UpdatesShipData()
 	{
 		await _shellViewModel.StartListeningAsync();
 
 		_mock.Mock<IService>().Raise(service => service.ShipDataReceived += null, this, new Ship { Name = "Test Ship" });
 
 		Assert.That(_shellViewModel.Ships, Has.Exactly(1).Matches<Ship>(s => s.Name == "Test Ship"));
+	}
+
+	[Test]
+	public async Task UpdatesShipPosition()
+	{
+		await _shellViewModel.StartListeningAsync();
+
+		var ship = new Ship { Mmsi = 1, Name = "Test Ship" };
+		_mock.Mock<IService>().Raise(service => service.ShipDataReceived += null, this, ship);
+		Assert.That(ship.LastReportedPosition, Is.Null);
+
+		var position = new Position { ShipMmsi = ship.Mmsi, Cog = 10 };
+		_mock.Mock<IService>().Raise(service => service.PositionDataReceived += null, this, position);
+
+		Assert.That(ship.LastReportedPosition, Is.EqualTo(position));
 	}
 }
