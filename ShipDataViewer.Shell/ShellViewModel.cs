@@ -3,7 +3,7 @@ using ShipDataViewer.Core.Service;
 
 using Stylet;
 
-namespace ShipDataViewer.Ui;
+namespace ShipDataViewer.Shell;
 
 public class ShellViewModel : Screen
 {

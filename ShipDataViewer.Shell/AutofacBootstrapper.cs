@@ -2,7 +2,7 @@
 
 using Stylet;
 
-namespace ShipDataViewer.Ui;
+namespace ShipDataViewer.Shell;
 
 /// <summary>
 /// Code originally from:

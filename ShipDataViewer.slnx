@@ -2,5 +2,5 @@
   <Project Path="AisStream/AisStream.csproj" />
   <Project Path="Org.OpenAPITools/Org.OpenAPITools.csproj" />
   <Project Path="ShipDataViewer.Core/ShipDataViewer.Core.csproj" />
-  <Project Path="ShipDataViewer.Ui/ShipDataViewer.Ui.csproj" />
+  <Project Path="ShipDataViewer.Shell/ShipDataViewer.Shell.csproj" />
 </Solution>

@@ -1,8 +1,8 @@
 ﻿<mah:MetroWindow
-	x:Class="ShipDataViewer.Ui.ShellView"
+	x:Class="ShipDataViewer.Shell.ShellView"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:local="clr-namespace:ShipDataViewer.Ui"
+	xmlns:local="clr-namespace:ShipDataViewer.Shell"
 	xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
 	xmlns:s="https://github.com/canton7/Stylet"
 	Title="Ship Data Viewer"

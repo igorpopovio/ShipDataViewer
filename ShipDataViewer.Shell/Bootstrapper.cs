@@ -2,7 +2,7 @@
 
 using Autofac;
 
-namespace ShipDataViewer.Ui;
+namespace ShipDataViewer.Shell;
 
 public class Bootstrapper : AutofacBootstrapper<ShellViewModel>
 {

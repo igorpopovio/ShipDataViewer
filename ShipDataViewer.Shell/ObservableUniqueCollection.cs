@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
-namespace ShipDataViewer.Ui;
+namespace ShipDataViewer.Shell;
 
 // Source - https://stackoverflow.com/a/52192794
 // Posted by taquion

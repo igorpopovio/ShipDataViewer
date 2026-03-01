@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Data;
 
-namespace ShipDataViewer.Ui;
+namespace ShipDataViewer.Shell;
 
 public partial class ShellView
 {
