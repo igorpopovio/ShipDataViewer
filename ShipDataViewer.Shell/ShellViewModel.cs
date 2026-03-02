@@ -67,7 +67,13 @@ public class ShellViewModel : Screen, IDisposable
 		}
 		catch (OperationCanceledException)
 		{
-			UnsubscribeFromEvents();
+			_cancellationTokenSource.Dispose();
+			_cancellationTokenSource = new CancellationTokenSource();
+		}
+		catch (Exception exception)
+		{
+			var message = $"{exception.Message}\n{exception.StackTrace}";
+			_windowManager.ShowMessageBox(message, "Error");
 			_cancellationTokenSource.Dispose();
 			_cancellationTokenSource = new CancellationTokenSource();
 		}
