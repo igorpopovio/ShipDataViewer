@@ -1,52 +1,40 @@
-﻿<mah:MetroWindow
+﻿<ui:FluentWindow
 	x:Class="ShipDataViewer.Shell.ShellView"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:local="clr-namespace:ShipDataViewer.Shell"
-	xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
 	xmlns:s="https://github.com/canton7/Stylet"
-	Title="Ship Data Viewer"
+	xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
 	Loaded="Window_Loaded">
-	<DockPanel>
-		<StatusBar DockPanel.Dock="Bottom">
-			<StatusBarItem>
-				<TextBlock Text="{Binding LoadingMessage}" />
-			</StatusBarItem>
-			<Separator />
-			<StatusBarItem>
-				<TextBlock Text="{Binding ShipsReportedMessage}" />
-			</StatusBarItem>
-			<Separator />
-			<StatusBarItem>
-				<TextBlock Text="{Binding LastUpdateMessage}" />
-			</StatusBarItem>
-		</StatusBar>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
 
-		<Grid>
-			<Grid.RowDefinitions>
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="Auto" />
-				<RowDefinition />
-			</Grid.RowDefinitions>
-			<Button
-				Grid.Row="0"
-				Command="{s:Action StartListeningAsync}"
-				Content="Start listening" />
-			<Button
-				Grid.Row="1"
-				Command="{s:Action StopListeningAsync}"
-				Content="Stop listening" />
-			<TextBox
-				Grid.Row="2"
-				mah:TextBoxHelper.ClearTextButton="True"
-				mah:TextBoxHelper.SelectAllOnFocus="True"
-				mah:TextBoxHelper.Watermark="Search ship MMSI, Imo Number, Name or Call Sign..."
+		<ui:TitleBar Title="Ship Data Viewer" Grid.Row="0" />
+
+		<StackPanel Grid.Row="1">
+			<ui:Card Margin="8">
+				<StackPanel Orientation="Horizontal">
+					<ui:Button
+						Margin="10,0"
+						Command="{s:Action StartListeningAsync}"
+						Content="Start listening" />
+					<ui:Button
+						Margin="10,0"
+						Command="{s:Action StopListeningAsync}"
+						Content="Stop listening" />
+				</StackPanel>
+			</ui:Card>
+
+			<ui:TextBox
+				PlaceholderText="Search ship MMSI, Imo Number, Name or Call Sign..."
 				Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}"
 				TextChanged="TextBox_TextChanged" />
 			<DataGrid
 				x:Name="ShipDataGrid"
-				Grid.Row="3"
 				AutoGenerateColumns="False"
 				IsReadOnly="True"
 				ItemsSource="{Binding Ships}">
@@ -63,6 +51,20 @@
 					<DataGridTextColumn Binding="{Binding LastUpdated, StringFormat={}{0:G}}" Header="Last updated" />
 				</DataGrid.Columns>
 			</DataGrid>
-		</Grid>
-	</DockPanel>
-</mah:MetroWindow>
+		</StackPanel>
+
+		<StatusBar Grid.Row="2">
+			<StatusBarItem>
+				<TextBlock Text="{Binding LoadingMessage}" />
+			</StatusBarItem>
+			<Separator />
+			<StatusBarItem>
+				<TextBlock Text="{Binding ShipsReportedMessage}" />
+			</StatusBarItem>
+			<Separator />
+			<StatusBarItem>
+				<TextBlock Text="{Binding LastUpdateMessage}" />
+			</StatusBarItem>
+		</StatusBar>
+	</Grid>
+</ui:FluentWindow>
