@@ -77,6 +77,7 @@ public class ShellViewModel : Screen, IDisposable
 		{
 			_cancellationTokenSource.Dispose();
 			_cancellationTokenSource = new CancellationTokenSource();
+			UnsubscribeFromEvents();
 			Log.Information("Cancelled loading ship data.");
 		}
 		catch (Exception exception)
