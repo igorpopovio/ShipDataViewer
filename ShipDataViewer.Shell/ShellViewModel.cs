@@ -25,12 +25,15 @@ public class ShellViewModel : Screen, IDisposable
 	public string LoadingMessage { get; set; }
 
 	public DateTime? LastUpdateReceived { get; set; }
-	public string LastUpdateReceivedString { get; set; }
+
+	public string LastUpdateReceivedString { get; set; } = string.Empty;
 
 	public string LastUpdateMessage => $"Last Update Received: {LastUpdateReceived:G}";
+
 	public string ShipsReportedMessage => $"Total Ships Reported: {Ships.Count}";
 
 	public SettingsDialogViewModel SettingsDialogViewModel { get; }
+
 	public int ShipCount => Ships.Count;
 
 	public ShellViewModel(IWindowManager windowManager, Func<ServiceConfiguration, IService> serviceFactory, SettingsDialogViewModel settingsDialogViewModel)
