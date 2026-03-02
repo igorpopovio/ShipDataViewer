@@ -11,6 +11,7 @@ public class ShellViewModel : Screen, IDisposable
 
 	private CancellationTokenSource _cancellationTokenSource = new();
 	private IService? _service;
+	private readonly IWindowManager _windowManager;
 	private readonly Func<ServiceConfiguration, IService> _serviceFactory;
 
 	public string? ApiKey { get; set; }
@@ -25,20 +26,32 @@ public class ShellViewModel : Screen, IDisposable
 	public string LastUpdateMessage => $"Last Update Received: {LastUpdateReceived:G}";
 	public string ShipsReportedMessage => $"Total Ships Reported: {Ships.Count}";
 
-	public ShellViewModel(Func<ServiceConfiguration, IService> serviceFactory)
+	public SettingsDialogViewModel SettingsDialogViewModel { get; }
+
+	public ShellViewModel(IWindowManager windowManager, Func<ServiceConfiguration, IService> serviceFactory, SettingsDialogViewModel settingsDialogViewModel)
 	{
 		DisplayName = "Ship Data Viewer";
 		LoadingMessage = DefaultLoadingMessage;
+		_windowManager = windowManager;
 		_serviceFactory = serviceFactory;
+		SettingsDialogViewModel = settingsDialogViewModel;
 	}
 
 	public async Task StartListeningAsync()
 	{
 		LoadingMessage = "Listening to AIS data...";
-		var apiKey = ApiKey ?? Environment.GetEnvironmentVariable("AIS_STREAM_API_KEY") ?? throw new ArgumentNullException("AIS_STREAM_API_KEY");
+		if (ApiKey == null)
+		{
+			var result = _windowManager.ShowDialog(SettingsDialogViewModel);
+			if (result.HasValue && result.Value)
+			{
+				ApiKey = SettingsDialogViewModel.ApiKey;
+			}
+		}
+		// var apiKey = ApiKey ?? Environment.GetEnvironmentVariable("AIS_STREAM_API_KEY") ?? throw new ArgumentNullException("AIS_STREAM_API_KEY");
 		_service = _serviceFactory(new ServiceConfiguration
 		{
-			ApiKey = apiKey,
+			ApiKey = ApiKey!,
 			BoundingBoxes = [[[-11, 178], [30, 74]]],
 		});
 

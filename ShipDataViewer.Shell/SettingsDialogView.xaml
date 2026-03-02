@@ -1,0 +1,38 @@
+﻿<ui:FluentWindow
+	x:Class="ShipDataViewer.Shell.SettingsDialogView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:local="clr-namespace:ShipDataViewer.Shell"
+	xmlns:s="https://github.com/canton7/Stylet"
+	xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+
+		<ui:TitleBar
+			Title="Ship Data Viewer"
+			Grid.Row="0"
+			ShowClose="False"
+			ShowMaximize="False"
+			ShowMinimize="False" />
+
+		<StackPanel Grid.Row="1" Orientation="Vertical">
+			<Label Content="ApiKey" />
+			<TextBox Text="{Binding ApiKey}" />
+		</StackPanel>
+
+		<StackPanel Grid.Row="2" Orientation="Horizontal">
+			<ui:Button
+				Margin="10,0"
+				Command="{s:Action Save}"
+				Content="Save" />
+			<ui:Button
+				Margin="10,0"
+				Command="{s:Action Cancel}"
+				Content="Cancel" />
+		</StackPanel>
+	</Grid>
+</ui:FluentWindow>
