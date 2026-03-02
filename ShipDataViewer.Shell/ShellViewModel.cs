@@ -1,4 +1,6 @@
-﻿using ShipDataViewer.Core.Model;
+﻿using Serilog;
+
+using ShipDataViewer.Core.Model;
 using ShipDataViewer.Core.Service;
 
 using Stylet;
@@ -69,6 +71,7 @@ public class ShellViewModel : Screen, IDisposable
 		{
 			_cancellationTokenSource.Dispose();
 			_cancellationTokenSource = new CancellationTokenSource();
+			Log.Information("Cancelled loading ship data.");
 		}
 		catch (Exception exception)
 		{
@@ -76,6 +79,7 @@ public class ShellViewModel : Screen, IDisposable
 			_windowManager.ShowMessageBox(message, "Error");
 			_cancellationTokenSource.Dispose();
 			_cancellationTokenSource = new CancellationTokenSource();
+			Log.Error("Encountered exception.", exception);
 		}
 	}
 
@@ -112,6 +116,7 @@ public class ShellViewModel : Screen, IDisposable
 		Ships.Add(ship);
 		NotifyOfPropertyChange(() => ShipsReportedMessage);
 		LastUpdateReceived = DateTime.Now;
+		Log.Debug($"Loaded '{ship.Name}'.");
 	}
 
 	private void OnShipPositionDataReceived(object? sender, Position position)
@@ -125,6 +130,7 @@ public class ShellViewModel : Screen, IDisposable
 		ship.LastReportedPosition = position;
 		ship.LastUpdated = DateTime.Now;
 		LastUpdateReceived = ship.LastUpdated;
+		Log.Debug($"Loaded '{ship.Name} position data'.");
 	}
 
 	private void UnsubscribeFromEvents()
