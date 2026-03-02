@@ -39,16 +39,19 @@ public class ShellViewModel : Screen, IDisposable
 
 	public async Task StartListeningAsync()
 	{
-		LoadingMessage = "Listening to AIS data...";
 		if (ApiKey == null)
 		{
 			var result = _windowManager.ShowDialog(SettingsDialogViewModel);
-			if (result.HasValue && result.Value)
+			if (!result.HasValue || !result.Value)
 			{
-				ApiKey = SettingsDialogViewModel.ApiKey;
+				return;
 			}
+
+			ApiKey = SettingsDialogViewModel.ApiKey;
 		}
-		// var apiKey = ApiKey ?? Environment.GetEnvironmentVariable("AIS_STREAM_API_KEY") ?? throw new ArgumentNullException("AIS_STREAM_API_KEY");
+
+		LoadingMessage = "Listening to AIS data...";
+
 		_service = _serviceFactory(new ServiceConfiguration
 		{
 			ApiKey = ApiKey!,
