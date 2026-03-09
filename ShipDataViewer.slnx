@@ -1,7 +1,11 @@
 <Solution>
-  <Project Path="AisStream/AisStream.csproj" />
-  <Project Path="Org.OpenAPITools/Org.OpenAPITools.csproj" />
-  <Project Path="ShipDataViewer.Core/ShipDataViewer.Core.csproj" />
-  <Project Path="ShipDataViewer.Shell.Tests/ShipDataViewer.Shell.Tests.csproj" Id="bc6ad087-658e-4754-8c7a-2fb96f8ffd90" />
-  <Project Path="ShipDataViewer.Shell/ShipDataViewer.Shell.csproj" />
+  <Folder Name="/App/">
+    <Project Path="App/ShipDataViewer.Core/ShipDataViewer.Core.csproj" />
+    <Project Path="App/ShipDataViewer.Shell.Tests/ShipDataViewer.Shell.Tests.csproj" />
+    <Project Path="App/ShipDataViewer.Shell/ShipDataViewer.Shell.csproj" />
+  </Folder>
+  <Folder Name="/Services/">
+    <Project Path="Services/AisStream/AisStream.csproj" />
+    <Project Path="Services/Org.OpenAPITools/Org.OpenAPITools.csproj" />
+  </Folder>
 </Solution>
