@@ -19,6 +19,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Services\AisStream\AisStream.csproj" />
+		<ProjectReference Include="..\..\Services\AisWebSocketStream\AisWebSocketStream.csproj" />
 		<ProjectReference Include="..\ShipDataViewer.Core\ShipDataViewer.Core.csproj" />
 	</ItemGroup>
 
