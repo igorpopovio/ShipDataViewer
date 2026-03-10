@@ -6,7 +6,8 @@
 	xmlns:s="https://github.com/canton7/Stylet"
 	xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
 	Width="500"
-	Height="320">
+	Height="320"
+	Loaded="FluentWindow_Loaded">
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
@@ -23,7 +24,7 @@
 
 		<StackPanel
 			Grid.Row="1"
-			Margin="20"
+			Margin="20,0,50,0"
 			Orientation="Vertical">
 			<Label Content="ApiKey" />
 			<TextBox Text="{Binding ApiKey}" />

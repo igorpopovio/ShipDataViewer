@@ -15,6 +15,7 @@ public class ShellViewModel : Screen, IDisposable
 	private IService? _service;
 	private readonly IWindowManager _windowManager;
 	private readonly Func<ServiceConfiguration, IService> _serviceFactory;
+	private readonly Func<SettingsDialogViewModel> _settingsDialogViewModelFactory;
 
 	public string? ApiKey { get; set; }
 
@@ -32,30 +33,32 @@ public class ShellViewModel : Screen, IDisposable
 
 	public string ShipsReportedMessage => $"Total Ships Reported: {Ships.Count}";
 
-	public SettingsDialogViewModel SettingsDialogViewModel { get; }
-
 	public int ShipCount => Ships.Count;
 
-	public ShellViewModel(IWindowManager windowManager, Func<ServiceConfiguration, IService> serviceFactory, SettingsDialogViewModel settingsDialogViewModel)
+	public ShellViewModel(
+		IWindowManager windowManager,
+		Func<ServiceConfiguration, IService> serviceFactory,
+		Func<SettingsDialogViewModel> settingsDialogViewModelFactory)
 	{
 		DisplayName = "Ship Data Viewer";
 		LoadingMessage = DefaultLoadingMessage;
 		_windowManager = windowManager;
 		_serviceFactory = serviceFactory;
-		SettingsDialogViewModel = settingsDialogViewModel;
+		_settingsDialogViewModelFactory = settingsDialogViewModelFactory;
 	}
 
 	public async Task StartListeningAsync()
 	{
 		if (ApiKey == null)
 		{
-			var result = _windowManager.ShowDialog(SettingsDialogViewModel);
-			if (!result.HasValue || !result.Value)
+			var settingsDialogViewModel = _settingsDialogViewModelFactory();
+			_windowManager.ShowDialog(settingsDialogViewModel);
+			if (!settingsDialogViewModel.Saved)
 			{
 				return;
 			}
 
-			ApiKey = SettingsDialogViewModel.ApiKey;
+			ApiKey = settingsDialogViewModel.ApiKey;
 		}
 
 		LoadingMessage = "Listening to AIS data...";
