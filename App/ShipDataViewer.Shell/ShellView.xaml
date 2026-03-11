@@ -35,15 +35,15 @@
 						Label="Last update"
 						Value="{Binding LastUpdateReceivedString}" />
 
-					<StackPanel Orientation="Vertical">
-						<ui:Button
-							Margin="0,10"
-							Command="{s:Action StartListeningAsync}"
-							Content="Start listening" />
-						<ui:Button
-							Margin="0,10"
-							Command="{s:Action StopListeningAsync}"
-							Content="Stop listening" />
+					<StackPanel Orientation="Horizontal">
+						<StackPanel.Resources>
+							<Style BasedOn="{StaticResource {x:Type ui:Button}}" TargetType="{x:Type ui:Button}">
+								<Setter Property="Margin" Value="10,0" />
+							</Style>
+						</StackPanel.Resources>
+						<ui:Button Command="{s:Action StartListeningAsync}" Content="Start listening" />
+						<ui:Button Command="{s:Action StopListeningAsync}" Content="Stop listening" />
+						<ui:Button Command="{s:Action OpenSettings}" Content="Settings" />
 					</StackPanel>
 				</StackPanel>
 			</ui:Card>

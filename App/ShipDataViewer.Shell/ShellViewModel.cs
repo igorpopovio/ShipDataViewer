@@ -101,6 +101,19 @@ public class ShellViewModel : Screen, IDisposable
 		LoadingMessage = "Stopped listening to AIS data...";
 	}
 
+	public void OpenSettings()
+	{
+		var settingsDialogViewModel = _settingsDialogViewModelFactory();
+		settingsDialogViewModel.ApiKey = ApiKey!;
+		_windowManager.ShowDialog(settingsDialogViewModel);
+		if (!settingsDialogViewModel.Saved)
+		{
+			return;
+		}
+
+		ApiKey = settingsDialogViewModel.ApiKey;
+	}
+
 	public bool Filter(object obj)
 	{
 		if (obj is not Ship ship)
