@@ -1,6 +1,6 @@
-﻿using Autofac;
+﻿using AisWebSocketStream.Service;
 
-using RandomlyGeneratedAisStream.Service;
+using Autofac;
 
 namespace ShipDataViewer.Shell;
 
@@ -10,7 +10,7 @@ public class Bootstrapper : AutofacBootstrapper<ShellViewModel>
 	{
 		base.ConfigureIoC(builder);
 		//builder.RegisterType<AisStreamService>().AsImplementedInterfaces();
-		builder.RegisterType<RandomlyGeneratedAiStreamService>().AsImplementedInterfaces();
-		//builder.RegisterType<AisWebSocketStreamService>().AsImplementedInterfaces();
+		//builder.RegisterType<RandomlyGeneratedAiStreamService>().AsImplementedInterfaces();
+		builder.RegisterType<AisWebSocketStreamService>().AsImplementedInterfaces();
 	}
 }

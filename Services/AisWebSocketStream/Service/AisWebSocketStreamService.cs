@@ -24,28 +24,26 @@ public class AisWebSocketStreamService : IService
 
 	public async Task ListenAsync(CancellationToken cancellationToken = default)
 	{
-		using var webSocket = new ClientWebSocket();
+		var webSocket = new ClientWebSocket();
 		await webSocket.ConnectAsync(_serviceUri, cancellationToken);
 
-		await using var stream = WebSocketStream.Create(webSocket, WebSocketMessageType.Text);
-		using var reader = new StreamReader(stream);
-		await using var writer = new StreamWriter(stream);
+		var stream = WebSocketStream.Create(webSocket, WebSocketMessageType.Text, ownsWebSocket: false);
 
 		var serviceConfigurationJson = JsonSerializer.Serialize(_serviceConfiguration);
+		var writer = new StreamWriter(stream, leaveOpen: true);
 		await writer.WriteLineAsync(serviceConfigurationJson);
-		await writer.FlushAsync();
+		await writer.DisposeAsync();
 
 		var jsonSerializerOptions = CreateJsonOptions();
 
+		var reader = new StreamReader(stream);
+		var buffer = new char[4096];
 		while (!cancellationToken.IsCancellationRequested)
 		{
-			var line = await reader.ReadLineAsync(cancellationToken);
-			if (line is null)
-			{
-				break;
-			}
+			var count = await reader.ReadAsync(buffer, 0, buffer.Length);
+			var message = new string(buffer, 0, count);
 
-			var aisStreamMessage = JsonSerializer.Deserialize<AisStreamMessage>(line, jsonSerializerOptions);
+			var aisStreamMessage = JsonSerializer.Deserialize<AisStreamMessage>(message, jsonSerializerOptions);
 			if (aisStreamMessage == null)
 			{
 				continue;
