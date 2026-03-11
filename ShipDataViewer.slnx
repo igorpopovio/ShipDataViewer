@@ -8,5 +8,6 @@
     <Project Path="Services/AisStream/AisStream.csproj" />
     <Project Path="Services/AisWebSocketStream/AisWebSocketStream.csproj" Id="c05b99ca-34a6-435e-a78b-20277988681f" />
     <Project Path="Services/Org.OpenAPITools/Org.OpenAPITools.csproj" />
+    <Project Path="Services/RandomlyGeneratedAisStream/RandomlyGeneratedAisStream.csproj" />
   </Folder>
 </Solution>
