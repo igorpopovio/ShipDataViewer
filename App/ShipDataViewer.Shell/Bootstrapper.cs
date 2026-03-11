@@ -9,6 +9,7 @@ public class Bootstrapper : AutofacBootstrapper<ShellViewModel>
 	protected override void ConfigureIoC(ContainerBuilder builder)
 	{
 		base.ConfigureIoC(builder);
+		builder.RegisterType<ServiceLoader>().SingleInstance();
 		//builder.RegisterType<AisStreamService>().AsImplementedInterfaces();
 		builder.RegisterType<RandomlyGeneratedAiStreamService>().AsImplementedInterfaces();
 		//builder.RegisterType<AisWebSocketStreamService>().AsImplementedInterfaces();

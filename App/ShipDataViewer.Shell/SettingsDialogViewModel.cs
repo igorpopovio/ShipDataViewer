@@ -1,12 +1,30 @@
 ﻿using ShipDataViewer.Core.Core;
 
+using System.Collections.ObjectModel;
+
 namespace ShipDataViewer.Shell;
 
 public class SettingsDialogViewModel : ViewModel
 {
+	private readonly ServiceLoader _serviceLoader;
+
 	public bool Saved { get; set; }
 
 	public string? ApiKey { get; set; }
+
+	public ObservableCollection<ServiceLoadContext>? ServiceContexts { get; set; }
+
+	public ServiceLoadContext? SelectedServiceContext;
+
+	public SettingsDialogViewModel(ServiceLoader serviceLoader)
+	{
+		_serviceLoader = serviceLoader;
+	}
+
+	public void Initialize()
+	{
+		ServiceContexts = new ObservableCollection<ServiceLoadContext>(_serviceLoader.ServiceContexts.Value);
+	}
 
 	public void Save()
 	{

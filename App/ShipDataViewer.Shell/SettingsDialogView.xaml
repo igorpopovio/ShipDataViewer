@@ -26,8 +26,20 @@
 			Grid.Row="1"
 			Margin="20,0,50,0"
 			Orientation="Vertical">
+			<StackPanel.Resources>
+				<Style BasedOn="{StaticResource {x:Type Label}}" TargetType="{x:Type Label}">
+					<Setter Property="Margin" Value="0,20,0,5" />
+				</Style>
+			</StackPanel.Resources>
+
 			<Label Content="ApiKey" />
 			<TextBox Text="{Binding ApiKey}" />
+
+			<Label Content="Active service" />
+			<ComboBox
+				DisplayMemberPath="ServiceName"
+				ItemsSource="{Binding ServiceContexts}"
+				SelectedItem="{Binding SelectedServiceContext}" />
 		</StackPanel>
 
 		<StackPanel
