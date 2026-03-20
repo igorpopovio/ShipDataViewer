@@ -1,12 +1,14 @@
 ﻿using ShipDataViewer.Core.Model;
 
+using System.Threading.Channels;
+
 namespace ShipDataViewer.Core.Service;
 
 public interface IService
 {
 	Task ListenAsync(CancellationToken token = default);
 
-	event EventHandler<Ship> ShipDataReceived;
+	ChannelReader<Ship> ShipData { get; }
 
-	event EventHandler<Position> PositionDataReceived;
+	ChannelReader<Position> PositionData { get; }
 }

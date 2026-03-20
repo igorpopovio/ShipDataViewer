@@ -6,6 +6,7 @@ using ShipDataViewer.Core.Service;
 using System.Net.WebSockets;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Channels;
 
 namespace AisWebSocketStream.Service;
 
@@ -15,24 +16,31 @@ public class AisWebSocketStreamService : IService
 	private readonly Uri _serviceUri = new("wss://stream.aisstream.io/v0/stream");
 
 	private readonly ServiceConfiguration _serviceConfiguration;
+	private readonly Channel<Ship> _shipData;
+	private readonly Channel<Position> _positionData;
 
-	public event EventHandler<Ship>? ShipDataReceived;
+	public ChannelReader<Ship> ShipData => _shipData.Reader;
 
-	public event EventHandler<Position>? PositionDataReceived;
+	public ChannelReader<Position> PositionData => _positionData.Reader;
 
-	public AisWebSocketStreamService(ServiceConfiguration serviceConfiguration) => _serviceConfiguration = serviceConfiguration;
+	public AisWebSocketStreamService(ServiceConfiguration serviceConfiguration)
+	{
+		_serviceConfiguration = serviceConfiguration;
+		_shipData = Channel.CreateUnbounded<Ship>();
+		_positionData = Channel.CreateUnbounded<Position>();
+	}
 
 	public async Task ListenAsync(CancellationToken cancellationToken = default)
 	{
 		using var webSocket = new ClientWebSocket();
-		await webSocket.ConnectAsync(_serviceUri, cancellationToken);
+		await webSocket.ConnectAsync(_serviceUri, cancellationToken).ConfigureAwait(false);
 
 		await using var stream = WebSocketStream.Create(webSocket, WebSocketMessageType.Text);
 
 		var serviceConfigurationJson = JsonSerializer.Serialize(_serviceConfiguration);
 		await using (var writer = new StreamWriter(stream, leaveOpen: true))
 		{
-			await writer.WriteLineAsync(serviceConfigurationJson);
+			await writer.WriteLineAsync(serviceConfigurationJson).ConfigureAwait(false);
 		}
 
 		var jsonSerializerOptions = CreateJsonOptions();
@@ -41,7 +49,7 @@ public class AisWebSocketStreamService : IService
 		var buffer = new char[4096];
 		while (!cancellationToken.IsCancellationRequested)
 		{
-			var count = await reader.ReadAsync(buffer, 0, buffer.Length);
+			var count = await reader.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
 			var message = new string(buffer, 0, count);
 
 			var aisStreamMessage = JsonSerializer.Deserialize<AisStreamMessage>(message, jsonSerializerOptions);
@@ -53,10 +61,10 @@ public class AisWebSocketStreamService : IService
 			switch (aisStreamMessage.MessageType)
 			{
 				case AisMessageTypes.ShipStaticData:
-					Process(aisStreamMessage.Message.ShipStaticData);
+					await ProcessAsync(aisStreamMessage.Message.ShipStaticData, cancellationToken).ConfigureAwait(false);
 					break;
 				case AisMessageTypes.PositionReport:
-					Process(aisStreamMessage.Message.PositionReport);
+					await ProcessAsync(aisStreamMessage.Message.PositionReport, cancellationToken).ConfigureAwait(false);
 					break;
 				default:
 					break;
@@ -64,7 +72,25 @@ public class AisWebSocketStreamService : IService
 		}
 	}
 
-	private void Process(PositionReport? positionReport)
+	private async Task ProcessAsync(ShipStaticData? shipData, CancellationToken cancellationToken)
+	{
+		if (shipData == null || shipData.ImoNumber == 0)
+		{
+			return;
+		}
+
+		var ship = new Ship
+		{
+			Mmsi = shipData.UserID,
+			Name = shipData.Name.Trim(),
+			CallSign = shipData.CallSign.Trim(),
+			ImoNumber = shipData.ImoNumber,
+		};
+
+		await _shipData.Writer.WriteAsync(ship, cancellationToken).ConfigureAwait(false);
+	}
+
+	private async Task ProcessAsync(PositionReport? positionReport, CancellationToken cancellationToken)
 	{
 		if (positionReport == null)
 		{
@@ -81,25 +107,7 @@ public class AisWebSocketStreamService : IService
 			TrueHeading = positionReport.TrueHeading,
 		};
 
-		PositionDataReceived?.Invoke(this, position);
-	}
-
-	private void Process(ShipStaticData? shipData)
-	{
-		if (shipData == null || shipData.ImoNumber == 0)
-		{
-			return;
-		}
-
-		var ship = new Ship
-		{
-			Mmsi = shipData.UserID,
-			Name = shipData.Name.Trim(),
-			CallSign = shipData.CallSign.Trim(),
-			ImoNumber = shipData.ImoNumber,
-		};
-
-		ShipDataReceived?.Invoke(this, ship);
+		await _positionData.Writer.WriteAsync(position, cancellationToken).ConfigureAwait(false);
 	}
 
 	private JsonSerializerOptions CreateJsonOptions()

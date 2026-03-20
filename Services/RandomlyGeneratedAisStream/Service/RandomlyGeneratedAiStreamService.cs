@@ -1,12 +1,24 @@
 ﻿using ShipDataViewer.Core.Model;
 using ShipDataViewer.Core.Service;
 
+using System.Threading.Channels;
+
 namespace RandomlyGeneratedAisStream.Service;
 
 public class RandomlyGeneratedAiStreamService : IService
 {
-	public event EventHandler<Ship>? ShipDataReceived;
-	public event EventHandler<Position>? PositionDataReceived;
+	private readonly Channel<Ship> _shipData;
+	private readonly Channel<Position> _positionData;
+
+	public ChannelReader<Ship> ShipData => _shipData.Reader;
+
+	public ChannelReader<Position> PositionData => _positionData.Reader;
+
+	public RandomlyGeneratedAiStreamService()
+	{
+		_shipData = Channel.CreateUnbounded<Ship>();
+		_positionData = Channel.CreateUnbounded<Position>();
+	}
 
 	public async Task ListenAsync(CancellationToken token = default)
 	{
@@ -21,7 +33,7 @@ public class RandomlyGeneratedAiStreamService : IService
 				Name = $"Ship{i}",
 			};
 			ships.Add(ship);
-			ShipDataReceived?.Invoke(this, ship);
+			await _shipData.Writer.WriteAsync(ship, token).ConfigureAwait(false);
 		}
 
 		var random = new Random();
@@ -38,7 +50,7 @@ public class RandomlyGeneratedAiStreamService : IService
 					Cog = random.NextDouble(),
 					TrueHeading = random.Next(),
 				};
-				PositionDataReceived?.Invoke(this, position);
+				await _positionData.Writer.WriteAsync(position, token).ConfigureAwait(false);
 			}
 
 			await Task.Delay(TimeSpan.FromMilliseconds(500), token);

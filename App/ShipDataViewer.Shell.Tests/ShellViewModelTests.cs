@@ -1,9 +1,9 @@
 ﻿using Autofac.Extras.Moq;
 
-using Moq;
-
 using ShipDataViewer.Core.Model;
 using ShipDataViewer.Core.Service;
+
+using System.Threading.Channels;
 
 namespace ShipDataViewer.Shell.Tests;
 
@@ -11,6 +11,8 @@ public class ShellViewModelTests
 {
 	private AutoMock _mock;
 	private ShellViewModel _shellViewModel;
+	private Channel<Ship> _shipChannel;
+	private Channel<Position> _positionChannel;
 
 	[SetUp]
 	public void Setup()
@@ -18,6 +20,12 @@ public class ShellViewModelTests
 		_mock = AutoMock.GetLoose();
 		_shellViewModel = _mock.Create<ShellViewModel>();
 		_shellViewModel.ApiKey = "dummy-key-for-tests";
+
+		_shipChannel = Channel.CreateUnbounded<Ship>();
+		_mock.Mock<IService>().Setup(service => service.ShipData).Returns(_shipChannel.Reader);
+
+		_positionChannel = Channel.CreateUnbounded<Position>();
+		_mock.Mock<IService>().Setup(service => service.PositionData).Returns(_positionChannel.Reader);
 	}
 
 	[TearDown]
@@ -38,19 +46,25 @@ public class ShellViewModelTests
 	{
 		Assert.That(_shellViewModel.LoadingMessage, Is.EqualTo("Ready"));
 
-		await _shellViewModel.StartListeningAsync();
+		var startListeningTask = _shellViewModel.StartListeningAsync();
+
 		Assert.That(_shellViewModel.LoadingMessage, Is.EqualTo("Listening to AIS data..."));
 
-		await _shellViewModel.StopListeningAsync();
+		var stopListeningTask = _shellViewModel.StopListeningAsync();
+
+		await Task.WhenAll(startListeningTask, stopListeningTask);
+
 		Assert.That(_shellViewModel.LoadingMessage, Is.EqualTo("Stopped listening to AIS data..."));
 	}
 
 	[Test]
 	public async Task UpdatesShipData()
 	{
-		await _shellViewModel.StartListeningAsync();
+		var startListeningTask = _shellViewModel.StartListeningAsync();
+		var writeShipTask = _shipChannel.Writer.WriteAsync(new Ship { Name = "Test Ship" });
+		var stopListeningTask = _shellViewModel.StopListeningAsync();
 
-		_mock.Mock<IService>().Raise(service => service.ShipDataReceived += null, this, new Ship { Name = "Test Ship" });
+		await Task.WhenAll(startListeningTask, writeShipTask.AsTask(), stopListeningTask);
 
 		Assert.That(_shellViewModel.Ships, Has.Exactly(1).Matches<Ship>(s => s.Name == "Test Ship"));
 	}
@@ -58,12 +72,15 @@ public class ShellViewModelTests
 	[Test]
 	public async Task ShipDataIsUnique()
 	{
-		await _shellViewModel.StartListeningAsync();
+		var startListeningTask = _shellViewModel.StartListeningAsync();
 
 		var ship = new Ship { Mmsi = 1, Name = "Test Ship" };
+		var writeShipTask = _shipChannel.Writer.WriteAsync(ship);
+		var writeSameShipAgainTask = _shipChannel.Writer.WriteAsync(ship);
 
-		_mock.Mock<IService>().Raise(service => service.ShipDataReceived += null, this, ship);
-		_mock.Mock<IService>().Raise(service => service.ShipDataReceived += null, this, ship);
+		var stopListeningTask = _shellViewModel.StopListeningAsync();
+
+		await Task.WhenAll(startListeningTask, writeShipTask.AsTask(), writeSameShipAgainTask.AsTask(), stopListeningTask);
 
 		Assert.That(_shellViewModel.Ships, Has.Exactly(1).Matches<Ship>(s => s.Name == "Test Ship"));
 	}
@@ -71,14 +88,19 @@ public class ShellViewModelTests
 	[Test]
 	public async Task UpdatesShipPosition()
 	{
-		await _shellViewModel.StartListeningAsync();
+		var startListeningTask = _shellViewModel.StartListeningAsync();
 
 		var ship = new Ship { Mmsi = 1, Name = "Test Ship" };
-		_mock.Mock<IService>().Raise(service => service.ShipDataReceived += null, this, ship);
+		var writeShipTask = _shipChannel.Writer.WriteAsync(ship);
+
 		Assert.That(ship.LastReportedPosition, Is.Null);
 
 		var position = new Position { ShipMmsi = ship.Mmsi, Cog = 10 };
-		_mock.Mock<IService>().Raise(service => service.PositionDataReceived += null, this, position);
+		var writePositionTask = _positionChannel.Writer.WriteAsync(position);
+
+		var stopListeningTask = _shellViewModel.StopListeningAsync();
+
+		await Task.WhenAll(startListeningTask, writeShipTask.AsTask(), writePositionTask.AsTask(), stopListeningTask);
 
 		Assert.That(ship.LastReportedPosition, Is.EqualTo(position));
 		Assert.That(ship.LastUpdated, Is.Not.Null);
@@ -87,14 +109,12 @@ public class ShellViewModelTests
 	[Test]
 	public async Task StopsListeningToUpdatesOnceCancelled()
 	{
-		_mock
-			.Mock<IService>()
-			.Setup(service => service.ListenAsync(It.IsAny<CancellationToken>()))
-			.ThrowsAsync(new OperationCanceledException());
+		var startListeningTask = _shellViewModel.StartListeningAsync();
+		var stopListeningTask = _shellViewModel.StopListeningAsync();
+		await Task.WhenAll(startListeningTask, stopListeningTask);
 
-		await _shellViewModel.StartListeningAsync();
-
-		_mock.Mock<IService>().Raise(service => service.ShipDataReceived += null, this, new Ship { Mmsi = 1, Name = "Test Ship" });
+		var ship = new Ship { Mmsi = 1, Name = "Test Ship" };
+		await _shipChannel.Writer.WriteAsync(ship);
 
 		Assert.That(_shellViewModel.Ships, Has.Count.EqualTo(0));
 	}

@@ -69,34 +69,63 @@ public class ShellViewModel : Screen, IDisposable
 			BoundingBoxes = [[[-11, 178], [30, 74]]],
 		});
 
-		_service.ShipDataReceived += OnShipDataReceived;
-		_service.PositionDataReceived += OnShipPositionDataReceived;
-
 		try
 		{
-			await _service.ListenAsync(_cancellationTokenSource.Token);
+			var listenToService = _service.ListenAsync(_cancellationTokenSource.Token);
+			var updateShips = UpdateShipsAsync(_cancellationTokenSource.Token);
+			var updatePositions = UpdatePositionsAsync(_cancellationTokenSource.Token);
+
+			await Task.WhenAll(listenToService, updateShips, updatePositions);
 		}
 		catch (OperationCanceledException)
 		{
-			_cancellationTokenSource.Dispose();
-			_cancellationTokenSource = new CancellationTokenSource();
-			UnsubscribeFromEvents();
 			Log.Information("Cancelled loading ship data.");
 		}
 		catch (Exception exception)
 		{
 			var message = $"{exception.Message}\n{exception.StackTrace}";
 			_windowManager.ShowMessageBox(message, "Error");
+			Log.Error("Encountered exception.", exception);
+		}
+		finally
+		{
 			_cancellationTokenSource.Dispose();
 			_cancellationTokenSource = new CancellationTokenSource();
-			Log.Error("Encountered exception.", exception);
+		}
+	}
+
+	private async Task UpdateShipsAsync(CancellationToken token)
+	{
+		await foreach (var ship in _service!.ShipData.ReadAllAsync(token))
+		{
+			Ships.Add(ship);
+			NotifyOfPropertyChange(() => ShipsReportedMessage);
+			NotifyOfPropertyChange(() => ShipCount);
+			LastUpdateReceived = DateTime.Now;
+			LastUpdateReceivedString = LastUpdateReceived.Value.ToString("HH:mm:ss");
+			Log.Debug($"Loaded '{ship.Name}'.");
+		}
+	}
+
+	private async Task UpdatePositionsAsync(CancellationToken token)
+	{
+		await foreach (var position in _service!.PositionData.ReadAllAsync(token))
+		{
+			var ship = Ships.SingleOrDefault(s => s.Mmsi == position.ShipMmsi);
+			if (ship is null)
+			{
+				continue;
+			}
+
+			ship.LastReportedPosition = position;
+			ship.LastUpdated = DateTime.Now;
+			LastUpdateReceived = ship.LastUpdated;
+			Log.Debug($"Loaded '{ship.Name} position data'.");
 		}
 	}
 
 	public async Task StopListeningAsync()
 	{
-		UnsubscribeFromEvents();
-
 		await _cancellationTokenSource.CancelAsync();
 		LoadingMessage = "Stopped listening to AIS data...";
 	}
@@ -130,43 +159,6 @@ public class ShellViewModel : Screen, IDisposable
 
 	public void Dispose()
 	{
-		UnsubscribeFromEvents();
 		_cancellationTokenSource.Dispose();
-	}
-
-	private void OnShipDataReceived(object? sender, Ship ship)
-	{
-		Ships.Add(ship);
-		NotifyOfPropertyChange(() => ShipsReportedMessage);
-		NotifyOfPropertyChange(() => ShipCount);
-		LastUpdateReceived = DateTime.Now;
-		LastUpdateReceivedString = LastUpdateReceived.Value.ToString("HH:mm:ss");
-		Log.Debug($"Loaded '{ship.Name}'.");
-	}
-
-	private void OnShipPositionDataReceived(object? sender, Position position)
-	{
-		var ship = Ships.SingleOrDefault(s => s.Mmsi == position.ShipMmsi);
-		if (ship is null)
-		{
-			return;
-		}
-
-		ship.LastReportedPosition = position;
-		ship.LastUpdated = DateTime.Now;
-		LastUpdateReceived = ship.LastUpdated;
-		Log.Debug($"Loaded '{ship.Name} position data'.");
-	}
-
-	private void UnsubscribeFromEvents()
-	{
-		if (_service == null)
-		{
-			return;
-		}
-
-		_service.ShipDataReceived -= OnShipDataReceived;
-		_service.PositionDataReceived -= OnShipPositionDataReceived;
-		_service = null;
 	}
 }
